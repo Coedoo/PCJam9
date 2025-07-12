@@ -1,6 +1,7 @@
 package game
 
 import "core:mem"
+import "core:fmt"
 
 import dm "../dmcore"
 
@@ -9,35 +10,43 @@ BASIC_TILESET :: "symbols.png"
 START_MONEY :: 1000
 
 REELS_COUNT :: 5
+ROWS_COUNT :: 5
 REEL_SIZE :: 64
+
+MIN_BONUS_SIZE :: 3
+
+SPEED_RAND_RANGE :: v2{20, 22}
+TIME_RAND_RANGE  :: v2{2, 2.2}
+
+REEL_TIME_OFFSET :: 0.5
 
 SYMBOLS := [SymbolType]Symbol {
     .None = {},
 
     .Cherry = {
-        tilesetName = BASIC_TILESET,
         tilesetPos = {0, 0},
+        basePoints = 10,
     },
 
-    .Seven = {
-        tilesetName = BASIC_TILESET,
+    .Burger = {
         tilesetPos = {1, 0},
+        basePoints = 15,
     },
 
-    .Star = {
-        tilesetName = BASIC_TILESET,
+    .Coffee = {
         tilesetPos = {2, 0},
+        basePoints = 10,
     },
 
     .Lemon = {
-        tilesetName = BASIC_TILESET,
         tilesetPos = {3, 0},
+        basePoints = 10,
     },
 }
 
 STARTING_SYMBOLS := #partial #sparse [SymbolType]int {
     .Cherry = 5,
-    .Seven  = 5,
-    .Star   = 5,
+    .Burger  = 5,
+    .Coffee   = 5,
     .Lemon  = 5,
 }
