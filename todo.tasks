@@ -5,17 +5,31 @@ Gameplay:
   ✔ ANIMATIONS @done (25-07-12 22:17)
   ✔ Move and reroll @done (25-07-13 11:43)
   ✔ Diagonal Bonus @done (25-07-13 13:24)
+
+  ☐ Reshuffle after spin
+
+  ☐ Special symbols base
+
+  ☐ Special symbols:
+    ☐ W and A
+    ☐ nuke
+    ☐ Special Cherry
+    ☐ Ribbon
+
   ☐ Rounds
-    ☐ Number of spins
-    ☐ Number of respins and moves
-    ☐ Target points
-    ☐ Finishing round and moving to the next one
+    ✔ Number of spins @done (25-07-13 16:46)
+    ✔ Number of respins and moves @done (25-07-13 16:46)
+    ✔ Target points @done (25-07-13 17:34)
+    ✔ Finishing round and moving to the next one @done (25-07-13 17:34)
     ☐ Fail state
-      ☐ Do I just let retry the round?
+      ✔ Do I just let retry the round? @done (25-07-13 17:33)
+      ☐ Probably back to menu (make sure you can skip cutscenes)
+
   ☐ Points animation:
     ☐ numbers over basic symbols
     ☐ then highligh bonus + nubmers
     ☐ then special stuff
+
   ☐ Shop ?
     ☐ Implement money
     ☐ Getting money after rounds (probably balatro style)
@@ -24,10 +38,5 @@ Gameplay:
     ☐ UI
 
   ☐ Dev-test round
-  ☐ Special symbols base
 
-  ☐ Special symbols:
-    ☐ W and A
-    ☐ nuke
-    ☐ Special Cherry
-    ☐ Ribbon
+  ✔ Popup UI over higlighted symbols @done (25-07-13 15:36)

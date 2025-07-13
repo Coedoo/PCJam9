@@ -14,11 +14,19 @@ SymbolType :: enum {
     Burger,
     Coffee,
     Lemon,
+
+    // Special
+    SpecialCherry,
+    Ribbon,
 }
+
+SymbolTypesSet :: distinct bit_set[SymbolType]
 
 Symbol :: struct {
     type: SymbolType,
     tilesetPos: iv2,
+
+    subtypes: SymbolTypesSet,
 
     basePoints: int,
 }
@@ -48,7 +56,7 @@ Evaluate :: proc(reels: []Reel) -> int {
     sum := 0
 
     symbols: [REELS_COUNT][ROWS_COUNT]SymbolType
-    points: [REELS_COUNT][ROWS_COUNT]int
+    points:  [REELS_COUNT][ROWS_COUNT]int
 
     for &reel, x in reels {
         p := cast(int) reel.position
@@ -63,7 +71,16 @@ Evaluate :: proc(reels: []Reel) -> int {
         }
     }
 
-    fmt.println(symbols)
+    // fmt.println(symbols)
+
+    IsOk :: proc(symbols: [][]SymbolType, checkedSymbol: SymbolType, x, y: int) -> bool {
+        sym := SYMBOLS[checkedSymbol]
+
+        ret := symbols[x][y] == checkedSymbol
+        ret = ret || (checkedSymbol in sym.subtypes)
+
+        return ret
+    }
 
     // horizontal bonus
     for y in 0..<ROWS_COUNT {
@@ -76,6 +93,7 @@ Evaluate :: proc(reels: []Reel) -> int {
 
             for i in checkedIdx+1..<REELS_COUNT {
                 if symbols[i][y] == checkedSymbol {
+                // if IsOk(symbols[i][y], checkedSymbol,  {
                     bonusSize += 1
                     pointsOnBonus += points[i][y]
                 }

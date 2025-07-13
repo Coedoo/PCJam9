@@ -20,6 +20,12 @@ TIME_RAND_RANGE  :: v2{2, 2.2}
 
 REEL_TIME_OFFSET :: 0.5
 
+
+//
+SPINS_PER_ROUND :: 4
+REROLLS_PER_SPIN :: 2
+MOVES_PER_SPIN :: 5
+
 SYMBOLS := [SymbolType]Symbol {
     .None = {},
 
