@@ -23,14 +23,24 @@ Symbol :: struct {
     basePoints: int,
 }
 
+ReelSpinState :: enum {
+    Stopped,
+    Spinning,
+    Moving,
+}
+
 Reel :: struct {
     symbols: [REEL_SIZE]SymbolType,
     count: int,
 
+    spinState: ReelSpinState,
     position: f32,
 
     speed: f32,
     spinTimer: f32,
+
+    moveStartPos: f32,
+    moveTargetPos: f32,
 }
 
 

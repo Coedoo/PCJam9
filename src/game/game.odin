@@ -13,7 +13,7 @@ iv2 :: dm.iv2
 
 GameState :: struct {
     reels: [REELS_COUNT]Reel,
-    allReelsStopped: bool,
+    reelsSpinning: bool,
 
     currentPoints: int,
 }
@@ -59,11 +59,30 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
 
         rand.shuffle(reel.symbols[:reel.count])
     }
+
+    // fmt.println(math.lerp(0., -1, 0.1))
+    // fmt.println(math.lerp(0., -1, 0.2))
+    // fmt.println(math.lerp(0., -1, 0.4))
+    // fmt.println(math.lerp(0., -1, 0.5))
+    // fmt.println(math.lerp(0., -1, 0.6))
 }
 
 ReelSpin :: proc(reel: ^Reel, timeOffset: f32) {
+    gameState.reelsSpinning = true
+
     reel.speed = rand.float32_range(SPEED_RAND_RANGE.x, SPEED_RAND_RANGE.y)
     reel.spinTimer = rand.float32_range(TIME_RAND_RANGE.x, TIME_RAND_RANGE.y) + timeOffset
+
+    reel.spinState = .Spinning
+}
+
+ReelMove :: proc(reel: ^Reel, direction: f32) {
+    gameState.reelsSpinning = true
+
+    reel.spinState = .Moving
+    reel.spinTimer = 0.5
+    reel.moveStartPos = reel.position
+    reel.moveTargetPos = reel.position + direction
 }
 
 @(export)
@@ -71,8 +90,6 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
 
     if dm.GetKeyState(.Space) == .JustPressed {
-        gameState.allReelsStopped = false
-
         for &reel, i in gameState.reels {
             rand.shuffle(reel.symbols[:reel.count])
             ReelSpin(&reel, f32(i) * REEL_TIME_OFFSET)
@@ -81,30 +98,75 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
         // gameState.currentPoints = Evaluate(gameState.reels[:])
     }
 
-    // update reels
-    stoppedReelsCount := 0
-    for &reel, i in gameState.reels {
-        if reel.spinTimer > 0 {
-            reel.position += reel.speed * dm.time.deltaTime
-            if int(reel.position) > reel.count {
-                reel.position -= f32(reel.count)
-            }
-
-            reel.spinTimer -= dm.time.deltaTime
-            if reel.spinTimer <= 0 {
-                reel.position = f32(int(reel.position))
-            }
+    if gameState.reelsSpinning == false {
+        if(dm.GetKeyState(.Num1) == .JustPressed) {
+            ReelSpin(&gameState.reels[0], 0)
         }
 
-        if reel.spinTimer <= 0 {
-            stoppedReelsCount += 1
+        if(dm.GetKeyState(.Num2) == .JustPressed) {
+            ReelSpin(&gameState.reels[1], 0)
+        }
+
+        if(dm.GetKeyState(.Num3) == .JustPressed) {
+            ReelSpin(&gameState.reels[2], 0)
+        }
+
+        if(dm.GetKeyState(.Num4) == .JustPressed) {
+            ReelSpin(&gameState.reels[3], 0)
+        }
+
+        if(dm.GetKeyState(.Num5) == .JustPressed) {
+            ReelSpin(&gameState.reels[4], 0)
+        }
+
+        if dm.GetKeyState(.Q) == .JustPressed {
+            ReelMove(&gameState.reels[0], -1)
         }
     }
 
-    if gameState.allReelsStopped == false {
-        if stoppedReelsCount == REELS_COUNT {
-            gameState.allReelsStopped = true
+    // update reels
+    for &reel, i in gameState.reels {
+        if reel.spinState == .Stopped {
+            continue
+        }
 
+        if reel.spinState == .Spinning {
+            reel.spinTimer -= dm.time.deltaTime
+            reel.position += reel.speed * dm.time.deltaTime
+        }
+
+        if reel.spinState == .Moving {
+            reel.spinTimer -= dm.time.deltaTime
+            p := 1 - reel.spinTimer / 0.5
+            reel.position = math.lerp(reel.moveStartPos, reel.moveTargetPos, p)
+        }
+
+        if reel.spinTimer <= 0 {
+            reel.spinState = .Stopped
+
+            // handle overflow
+            reel.position = f32(math.round(reel.position))
+            if int(reel.position) > reel.count {
+                reel.position -= f32(reel.count)
+            }
+            if int(reel.position) < 0 {
+                reel.position += f32(reel.count)
+            }
+        }
+    }
+
+    // check if reels stopped
+    if gameState.reelsSpinning {
+        allStopped := true
+        for &reel, i in gameState.reels {
+            if reel.spinState != .Stopped {
+                allStopped = false
+                break
+            }
+        }
+
+        if allStopped {
+            gameState.reelsSpinning = false
             gameState.currentPoints = Evaluate(gameState.reels[:])
         }
     }
