@@ -32,10 +32,23 @@ GameState :: struct {
     spins:    int,
     rerolls:  int,
     moves:    int,
+
+    // Shop
+    shop: Shop,
+    showShop: bool,
 }
 
 gameState: ^GameState
 
+
+RemoveMoney :: proc(money: int) -> bool {
+    if gameState.money >= money {
+        gameState.money -= money
+        return true
+    }
+
+    return false
+}
 
 @export
 PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
@@ -93,11 +106,19 @@ SpinAll :: proc() {
 
     for &reel, i in gameState.reels {
         rand.shuffle(reel.symbols[:reel.count])
-        ReelSpin(&reel, f32(i) * REEL_TIME_OFFSET)
+        ReelSpin(&reel, f32(i) * REEL_TIME_OFFSET, false)
     }
+
+
+    gameState.rerolls = REROLLS_PER_SPIN
+    gameState.moves = MOVES_PER_SPIN
 }
 
-ReelSpin :: proc(reel: ^Reel, timeOffset: f32) {
+ReelSpin :: proc(reel: ^Reel, timeOffset: f32, useReroll: bool) {
+    if useReroll && gameState.rerolls == 0 {
+        return
+    }
+
     gameState.state = .Spinning
 
     reel.speed = rand.float32_range(SPEED_RAND_RANGE.x, SPEED_RAND_RANGE.y)
@@ -105,20 +126,38 @@ ReelSpin :: proc(reel: ^Reel, timeOffset: f32) {
 
     reel.spinState = .Spinning
 
+    if useReroll {
+        gameState.rerolls -= 1
+    }
 }
 
 ReelMove :: proc(reel: ^Reel, direction: f32) {
+    if gameState.moves == 0 {
+        return
+    }
+
     gameState.state = .Spinning
 
     reel.spinState = .Moving
     reel.spinTimer = 0.5
     reel.moveStartPos = reel.position
     reel.moveTargetPos = reel.position + direction
+
+    gameState.moves -= 1
 }
 
 @(export)
 GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
+
+    if dm.GetKeyState(.Q) == .JustPressed {
+        InitShop(&gameState.shop)
+        gameState.showShop = true
+    }
+
+    if gameState.showShop {
+        ShowShop(&gameState.shop)
+    }
 
     // update reels
     for &reel, i in gameState.reels {
@@ -132,7 +171,7 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
             uiPos := dm.WorldToScreenPoint(pos)
             dm.NextNodePosition(dm.ToV2(uiPos))
             if dm.UIButton("Reroll") {
-                ReelSpin(&reel, 0)
+                ReelSpin(&reel, 0, true)
             }
 
             pos.y = -3.3
@@ -196,9 +235,6 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
         if allStopped {
             gameState.state = .PlayerMove
             gameState.currentPoints = Evaluate(gameState.reels[:])
-
-            gameState.rerolls = REROLLS_PER_SPIN
-            gameState.moves = MOVES_PER_SPIN
         }
     }
 
@@ -267,6 +303,31 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
             }
         }
     }
+
+    if dm.Panel("SymbolsCount") {
+        dm.BeginLayout(axis = .X)
+
+        for &reel, rIdx in gameState.reels {
+            count := CountReelSymbols(reel)
+
+            dm.BeginLayout(axis = .Y)
+
+            for c, i in count {
+                dm.PushId(rIdx)
+                if c != 0 {
+                    dm.UILabel(cast(SymbolType) i, c)
+                }
+                dm.PopId()
+            }
+
+            dm.EndLayout()
+        }
+
+        dm.EndLayout()
+    }
+
+    // fmt.println()
+    // fmt.println(dm.CreateUIDebugString())
 }
 
 @(export)

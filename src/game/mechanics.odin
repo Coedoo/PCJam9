@@ -51,6 +51,25 @@ Reel :: struct {
     moveTargetPos: f32,
 }
 
+AddSymbolToReel :: proc(reel: ^Reel, symbol: SymbolType) -> bool {
+    if reel.count < REEL_SIZE {
+        reel.symbols[reel.count] = symbol
+        reel.count += 1
+
+        return true
+    }
+
+    return false
+}
+
+CountReelSymbols :: proc(reel: Reel) -> (ret: [SymbolType]int) {
+    for i in 0..<reel.count {
+        ret[reel.symbols[i]] += 1
+    }
+
+    return
+}
+
 
 Evaluate :: proc(reels: []Reel) -> int {
     sum := 0

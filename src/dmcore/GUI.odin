@@ -629,8 +629,7 @@ PopStyle :: proc() {
 BeginLayout :: proc(
     axis:= LayoutAxis.X,
     aligmentX := AligmentX.Middle,
-    aligmentY := AligmentY.Middle,
-    loc := #caller_location
+    aligmentY := AligmentY.Middle
 )
 {
     node := AddNode("", {}, uiCtx.defaultStyle, uiCtx.defaultLayout)
@@ -648,11 +647,10 @@ BeginLayout :: proc(
 LayoutBlock :: proc(
     axis:= LayoutAxis.X,
     aligmentX := AligmentX.Middle,
-    aligmentY := AligmentY.Middle,
-    loc := #caller_location
+    aligmentY := AligmentY.Middle
 ) -> bool
 {
-    BeginLayout(axis, aligmentX, aligmentY, loc)
+    BeginLayout(axis, aligmentX, aligmentY)
     return true
 }
 

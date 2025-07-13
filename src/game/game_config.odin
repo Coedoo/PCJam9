@@ -7,7 +7,7 @@ import dm "../dmcore"
 
 BASIC_TILESET :: "symbols.png"
 
-START_MONEY :: 10
+START_MONEY :: 1000
 
 REELS_COUNT :: 5
 ROWS_COUNT :: 5
