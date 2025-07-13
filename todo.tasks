@@ -2,16 +2,27 @@ Gameplay:
   ✔ Preparing and shuffling reels @done (25-07-12 08:52)
   ✔ Symbol Points @done (25-07-12 11:07)
   ✔ finding bonus @done (25-07-12 11:07)
-  ☐ Diagonal Bonus
-  ☐ proper evaluation
   ✔ ANIMATIONS @done (25-07-12 22:17)
   ✔ Move and reroll @done (25-07-13 11:43)
+  ✔ Diagonal Bonus @done (25-07-13 13:24)
   ☐ Rounds
+    ☐ Number of spins
+    ☐ Number of respins and moves
+    ☐ Target points
+    ☐ Finishing round and moving to the next one
+    ☐ Fail state
+      ☐ Do I just let retry the round?
   ☐ Points animation:
     ☐ numbers over basic symbols
     ☐ then highligh bonus + nubmers
     ☐ then special stuff
   ☐ Shop ?
+    ☐ Implement money
+    ☐ Getting money after rounds (probably balatro style)
+    ☐ Add Shop items
+    ☐ Buying symbols
+    ☐ UI
+
   ☐ Dev-test round
   ☐ Special symbols base
 

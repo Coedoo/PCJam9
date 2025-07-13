@@ -170,6 +170,41 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
             gameState.currentPoints = Evaluate(gameState.reels[:])
         }
     }
+
+    /////////////
+    // DEBUG
+    ////////////
+
+    if dm.GetKeyState(.Z) == .JustPressed {
+        gameState.currentPoints = Evaluate(gameState.reels[:])
+    }
+
+    mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
+
+    posOffset := v2{REELS_COUNT, ROWS_COUNT} / 2
+    for &reel, x in gameState.reels {
+
+        for y in 0..< ROWS_COUNT {
+            pos := v2{f32(x), f32(y)} - posOffset
+            bounds := dm.CreateBounds(pos, 1)
+
+            if dm.IsInBounds(bounds, mousePos) {
+                scroll := dm.input.scroll
+                if scroll != 0 {
+                    startIdx := int(reel.position)
+                    idx := (startIdx + y) % reel.count
+                    
+                    i := cast(int) reel.symbols[idx]
+                    i = (i + scroll) % len(SymbolType)
+                    if i < 0 {
+                        i = len(SymbolType) - 1
+                    }
+
+                    reel.symbols[idx] = cast(SymbolType) i
+                }
+            }
+        }
+    }
 }
 
 @(export)
@@ -202,9 +237,11 @@ GameRender : dm.GameRender : proc(state: rawptr) {
             pos := SYMBOLS[reel.symbols[idx]].tilesetPos
             sprite := dm.GetSprite(tileSet, pos)
 
-            dm.DrawSprite(sprite, {f32(x), f32(y) - offset} - posOffset)
+            if reel.symbols[idx] != .None {
+                dm.DrawSprite(sprite, {f32(x), f32(y) - offset} - posOffset)
+            }
         }
     }
 
-    dm.DrawText(fmt.tprint("Points: ", gameState.currentPoints), {0, -1}, fontSize = 0.7)
+    dm.DrawText(fmt.tprint("Points: ", gameState.currentPoints), {0, -3}, fontSize = 0.7)
 }
