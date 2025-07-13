@@ -7,7 +7,7 @@ import dm "../dmcore"
 
 BASIC_TILESET :: "symbols.png"
 
-START_MONEY :: 1000
+START_MONEY :: 10
 
 REELS_COUNT :: 5
 ROWS_COUNT :: 5
@@ -42,6 +42,17 @@ SYMBOLS := [SymbolType]Symbol {
         tilesetPos = {3, 0},
         basePoints = 10,
     },
+
+
+    .SpecialCherry = {
+        tilesetPos = {0, 1},
+        basePoints = 10,
+    },
+
+    .Ribbon = {
+        tilesetPos = {1, 1},
+        basePoints = 10,
+    }
 }
 
 STARTING_SYMBOLS := #partial #sparse [SymbolType]int {

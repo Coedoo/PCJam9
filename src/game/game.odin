@@ -16,6 +16,8 @@ GameState :: struct {
     reelsSpinning: bool,
 
     currentPoints: int,
+
+    money: int,
 }
 
 gameState: ^GameState
@@ -60,11 +62,14 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
         rand.shuffle(reel.symbols[:reel.count])
     }
 
-    // fmt.println(math.lerp(0., -1, 0.1))
-    // fmt.println(math.lerp(0., -1, 0.2))
-    // fmt.println(math.lerp(0., -1, 0.4))
-    // fmt.println(math.lerp(0., -1, 0.5))
-    // fmt.println(math.lerp(0., -1, 0.6))
+    gameState.money = START_MONEY
+}
+
+SpinAll :: proc() {
+    for &reel, i in gameState.reels {
+        rand.shuffle(reel.symbols[:reel.count])
+        ReelSpin(&reel, f32(i) * REEL_TIME_OFFSET)
+    }
 }
 
 ReelSpin :: proc(reel: ^Reel, timeOffset: f32) {
@@ -90,42 +95,46 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
 
     if dm.GetKeyState(.Space) == .JustPressed {
-        for &reel, i in gameState.reels {
-            rand.shuffle(reel.symbols[:reel.count])
-            ReelSpin(&reel, f32(i) * REEL_TIME_OFFSET)
-        }
-
-        // gameState.currentPoints = Evaluate(gameState.reels[:])
+        SpinAll()
     }
 
-    if gameState.reelsSpinning == false {
-        if(dm.GetKeyState(.Num1) == .JustPressed) {
-            ReelSpin(&gameState.reels[0], 0)
-        }
 
-        if(dm.GetKeyState(.Num2) == .JustPressed) {
-            ReelSpin(&gameState.reels[1], 0)
-        }
-
-        if(dm.GetKeyState(.Num3) == .JustPressed) {
-            ReelSpin(&gameState.reels[2], 0)
-        }
-
-        if(dm.GetKeyState(.Num4) == .JustPressed) {
-            ReelSpin(&gameState.reels[3], 0)
-        }
-
-        if(dm.GetKeyState(.Num5) == .JustPressed) {
-            ReelSpin(&gameState.reels[4], 0)
-        }
-
-        if dm.GetKeyState(.Q) == .JustPressed {
-            ReelMove(&gameState.reels[0], -1)
-        }
+    dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({3, 0})))
+    if dm.UIButton("spin") {
+        SpinAll()
     }
 
     // update reels
     for &reel, i in gameState.reels {
+        posOffset := v2{REELS_COUNT, ROWS_COUNT} / 2
+
+        dm.PushId(i)
+        pos := v2{f32(i), -1.8} - posOffset
+
+        uiPos := dm.WorldToScreenPoint(pos)
+        dm.NextNodePosition(dm.ToV2(uiPos))
+        if dm.UIButton("Reroll") {
+            ReelSpin(&reel, 0)
+        }
+
+        pos.y = -3.3
+        uiPos = dm.WorldToScreenPoint(pos)
+        dm.NextNodePosition(dm.ToV2(uiPos))
+        if dm.UIButton("Move Down") {
+            ReelMove(&reel, 1)
+        }
+
+        pos.y = 2.3
+        uiPos = dm.WorldToScreenPoint(pos)
+        dm.NextNodePosition(dm.ToV2(uiPos))
+        if dm.UIButton("Move Up") {
+            ReelMove(&reel, -1)
+        }
+
+
+        dm.PopId()
+
+
         if reel.spinState == .Stopped {
             continue
         }
@@ -190,9 +199,10 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
 
             if dm.IsInBounds(bounds, mousePos) {
                 scroll := dm.input.scroll
+                startIdx := int(reel.position)
+                idx := (startIdx + y) % reel.count
+
                 if scroll != 0 {
-                    startIdx := int(reel.position)
-                    idx := (startIdx + y) % reel.count
                     
                     i := cast(int) reel.symbols[idx]
                     i = (i + scroll) % len(SymbolType)
@@ -201,6 +211,13 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
                     }
 
                     reel.symbols[idx] = cast(SymbolType) i
+                }
+
+                dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {0, 0})
+                if dm.Panel("Tooltip") {
+                    symbol := SYMBOLS[reel.symbols[idx]]
+                    dm.UILabel(reel.symbols[idx])
+                    dm.UILabel("Base points:", symbol.basePoints)
                 }
             }
         }
@@ -243,5 +260,5 @@ GameRender : dm.GameRender : proc(state: rawptr) {
         }
     }
 
-    dm.DrawText(fmt.tprint("Points: ", gameState.currentPoints), {0, -3}, fontSize = 0.7)
+    dm.DrawText(fmt.tprint("Points: ", gameState.currentPoints), {2.5, 0}, fontSize = 0.7)
 }
