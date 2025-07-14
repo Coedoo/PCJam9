@@ -13,13 +13,14 @@ REELS_COUNT :: 5
 ROWS_COUNT :: 5
 REEL_SIZE :: 64
 
-MIN_BONUS_SIZE :: 3
+MIN_BONUS_LEN :: 3
 
 SPEED_RAND_RANGE :: v2{20, 22}
 TIME_RAND_RANGE  :: v2{2, 2.2}
 
 REEL_TIME_OFFSET :: 0.5
 
+BONUS_LEN :: max(REELS_COUNT, ROWS_COUNT)
 
 //
 SPINS_PER_ROUND :: 4
@@ -58,6 +59,8 @@ SYMBOLS := [SymbolType]Symbol {
     .Ribbon = {
         tilesetPos = {1, 1},
         basePoints = 10,
+
+        subtypes = ~{}
     }
 }
 

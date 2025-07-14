@@ -70,12 +70,21 @@ CountReelSymbols :: proc(reel: Reel) -> (ret: [SymbolType]int) {
     return
 }
 
+Bonus :: struct {
+    startCell: iv2,
+    endCell: iv2,
+
+    length: int,
+    symbols: [BONUS_LEN]SymbolType
+}
 
 Evaluate :: proc(reels: []Reel) -> int {
     sum := 0
 
     symbols: [REELS_COUNT][ROWS_COUNT]SymbolType
     points:  [REELS_COUNT][ROWS_COUNT]int
+
+    bonusList: [dynamic]Bonus
 
     for &reel, x in reels {
         p := cast(int) reel.position
@@ -92,153 +101,65 @@ Evaluate :: proc(reels: []Reel) -> int {
 
     // fmt.println(symbols)
 
-    IsOk :: proc(symbols: [][]SymbolType, checkedSymbol: SymbolType, x, y: int) -> bool {
-        sym := SYMBOLS[checkedSymbol]
-
-        ret := symbols[x][y] == checkedSymbol
-        ret = ret || (checkedSymbol in sym.subtypes)
-
-        return ret
-    }
-
-    // horizontal bonus
-    for y in 0..<ROWS_COUNT {
-        checkedIdx := 0
-        for checkedIdx < REELS_COUNT {
-            checkedSymbol := symbols[checkedIdx][y]
-            bonusSize := 1
-
-            pointsOnBonus := points[checkedIdx][y]
-
-            for i in checkedIdx+1..<REELS_COUNT {
-                if symbols[i][y] == checkedSymbol {
-                // if IsOk(symbols[i][y], checkedSymbol,  {
-                    bonusSize += 1
-                    pointsOnBonus += points[i][y]
-                }
-                else {
-                    break
-                }
-            }
-
-
-            if bonusSize >= MIN_BONUS_SIZE {
-                fmt.println("Horizontal Bonus at:", checkedIdx, y, "bonus Size", bonusSize)
-                sum += pointsOnBonus * bonusSize
-            }
-
-            checkedIdx += bonusSize
+    IsOk :: proc(first, other: SymbolType) -> bool {
+        if first == other {
+            return true
         }
+
+        firstSymbol := SYMBOLS[first]
+        otherSymbol := SYMBOLS[other]
+
+        firstSet := firstSymbol.subtypes + { first }
+        otherSet := otherSymbol.subtypes + { other }
+
+        return card(firstSet & otherSet) > 0
     }
 
-    // Vertical bonus
-    for x in 0..<REELS_COUNT {
-        checkedIdx := 0
-        for checkedIdx < ROWS_COUNT {
-            checkedSymbol := symbols[x][checkedIdx]
-            bonusSize := 1
-
-            pointsOnBonus := points[x][checkedIdx]
-
-            for i in checkedIdx+1..<ROWS_COUNT {
-                if symbols[x][i] == checkedSymbol {
-                    bonusSize += 1
-                    pointsOnBonus += points[x][i]
-                }
-                else {
-                    break
-                }
-            }
-
-
-            if bonusSize >= MIN_BONUS_SIZE {
-                fmt.println("Vertical Bonus at:", x, checkedIdx, "bonus Size", bonusSize)
-                sum += pointsOnBonus * bonusSize
-            }
-
-            checkedIdx += bonusSize
-        }
+    checkDirs := [?]iv2 {
+        {1, 0},
+        {0, 1},
+        {1, 1},
+        {1, -1},
     }
 
-    // Diagonal Bonus
-    checked: [REELS_COUNT][ROWS_COUNT][2]bool
+    for &column, x in symbols {
+        for symbol, y in column {
+            checkeSymbol := symbols[x][y]
 
-    for x in 0..<REELS_COUNT {
-        for y in 0..<ROWS_COUNT {
-
-            checkedCell := iv2{i32(x), i32(y)}
-
-            checkedSymbol := symbols[checkedCell.x][checkedCell.y]
-            bonusSize := 1
-            pointsOnBonus := points[checkedCell.x][checkedCell.y]
-
-            if checked[checkedCell.x][checkedCell.y][0] == false {
-                checkedCell += {1, 1}
-                for checkedCell.x < REELS_COUNT && checkedCell.y < ROWS_COUNT {
-                    if symbols[checkedCell.x][checkedCell.y] == checkedSymbol {
-                        bonusSize += 1
-                        pointsOnBonus += points[checkedCell.x][checkedCell.y]
-                        checkedCell += {1, 1}
-                    }
-                    else {
-                        break
-                    }
+            for dir in checkDirs {
+                // check if it's the first symbol in sequence
+                prevCell := iv2{i32(x), i32(y)} - dir
+                if (prevCell.x >= 0 && prevCell.x < REELS_COUNT && 
+                    prevCell.y >= 0 && prevCell.y < ROWS_COUNT &&
+                    IsOk(checkeSymbol, symbols[prevCell.x][prevCell.y]))
+                {
+                    continue
                 }
 
-                if bonusSize >= MIN_BONUS_SIZE {
-                    fmt.println("Diagonal bonus at {", x, y, "}", checkedSymbol ,"bonus Size", bonusSize)
-                    sum += pointsOnBonus * bonusSize
-                    
-                    for i in 0..<bonusSize {
-                        xIdx := x + i
-                        yIdx := y + i
-                        checked[xIdx][yIdx][0] = true
-                    }
+                bonus: Bonus
+                cell := iv2{i32(x), i32(y)}
+
+                bonus.startCell = cell
+
+                for (cell.x >= 0 && cell.x < REELS_COUNT && 
+                     cell.y >= 0 && cell.y < ROWS_COUNT &&
+                     IsOk(checkeSymbol, symbols[cell.x][cell.y]))
+                {
+                    bonus.symbols[bonus.length] = symbols[cell.x][cell.y]
+                    bonus.length += 1
+                    bonus.endCell = cell
+
+                    cell += dir
+                }
+
+                if bonus.length >= MIN_BONUS_LEN {
+                    append(&bonusList, bonus)
                 }
             }
         }
     }
 
-
-    for y in 0..<ROWS_COUNT {
-        for x in 0..<REELS_COUNT {
-            checkedCell := iv2{i32(x), i32(y)}
-            checkedSymbol := symbols[checkedCell.x][checkedCell.y]
-            bonusSize := 1
-            pointsOnBonus := points[checkedCell.x][checkedCell.y]
-
-            if checked[checkedCell.x][checkedCell.y][1] == false {
-                checkedCell += {-1, 1}
-                for checkedCell.x >= 0 && checkedCell.y < ROWS_COUNT {
-                    if (symbols[checkedCell.x][checkedCell.y] == checkedSymbol &&
-                        checked[checkedCell.x][checkedCell.y][1] == false)
-                    {
-                        bonusSize += 1
-                        pointsOnBonus += points[checkedCell.x][checkedCell.y]
-                        checkedCell += {-1, 1}
-                    }
-                    else {
-                        break
-                    }
-                }
-
-                if bonusSize >= MIN_BONUS_SIZE {
-                    fmt.println("Diagonal back bonus at {", x, y, "}", checkedSymbol ,"bonus Size", bonusSize)
-                    sum += pointsOnBonus * bonusSize
-                    
-                    for i in 0..<bonusSize {
-                        xIdx := x - i
-                        yIdx := y + i
-                        checked[xIdx][yIdx][1] = true
-                    }
-                }
-            }
-        }
-    }
-
-    fmt.println()
-
-
+    fmt.println(bonusList)
 
     return sum
 }

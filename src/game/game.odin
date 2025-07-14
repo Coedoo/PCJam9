@@ -342,7 +342,7 @@ GameRender : dm.GameRender : proc(state: rawptr) {
 
     tileSet := dm.SpriteAtlas {
         texture = dm.GetTextureAsset(BASIC_TILESET),
-        cellSize = 48,
+        cellSize = 32,
     }
 
     posOffset := v2{REELS_COUNT, ROWS_COUNT} / 2

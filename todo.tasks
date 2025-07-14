@@ -14,7 +14,7 @@ Gameplay:
     ☐ W and A
     ☐ nuke
     ☐ Special Cherry
-    ☐ Ribbon
+    ☐ Pipe
 
   ☐ Rounds
     ✔ Number of spins @done (25-07-13 16:46)
@@ -31,10 +31,10 @@ Gameplay:
     ☐ then special stuff
 
   ☐ Shop ?
-    ☐ Implement money
+    ✔ Implement money @done (25-07-13 21:13)
     ☐ Getting money after rounds (probably balatro style)
-    ☐ Add Shop items
-    ☐ Buying symbols
+    ✔ Add Shop items @done (25-07-13 21:13)
+    ✔ Buying symbols @done (25-07-13 21:13)
     ☐ UI
 
   ☐ Dev-test round
