@@ -8,6 +8,8 @@ import "core:fmt"
 import "core:slice"
 import "core:mem"
 
+import sa "core:container/small_array"
+
 SymbolType :: enum {
     None,
     Cherry,
@@ -70,6 +72,13 @@ CountReelSymbols :: proc(reel: Reel) -> (ret: [SymbolType]int) {
     return
 }
 
+EvaluationResult :: struct {
+    bonus: sa.Small_Array(128, Bonus),
+
+    points: [REELS_COUNT][ROWS_COUNT]int,
+    pointsSum: int,
+}
+
 Bonus :: struct {
     startCell: iv2,
     endCell: iv2,
@@ -78,13 +87,24 @@ Bonus :: struct {
     symbols: [BONUS_LEN]SymbolType
 }
 
-Evaluate :: proc(reels: []Reel) -> int {
-    sum := 0
+IsOk :: proc(first, other: SymbolType) -> bool {
+    if first == other {
+        return true
+    }
+
+    firstSymbol := SYMBOLS[first]
+    otherSymbol := SYMBOLS[other]
+
+    firstSet := firstSymbol.subtypes + { first }
+    otherSet := otherSymbol.subtypes + { other }
+
+    return card(firstSet & otherSet) > 0
+}
+
+Evaluate :: proc(reels: []Reel) -> EvaluationResult {
+    res: EvaluationResult
 
     symbols: [REELS_COUNT][ROWS_COUNT]SymbolType
-    points:  [REELS_COUNT][ROWS_COUNT]int
-
-    bonusList: [dynamic]Bonus
 
     for &reel, x in reels {
         p := cast(int) reel.position
@@ -93,29 +113,13 @@ Evaluate :: proc(reels: []Reel) -> int {
             symbol := reel.symbols[idx]
 
             symbols[x][y] = symbol
-            points[x][y] = SYMBOLS[symbol].basePoints
+            res.points[x][y] = SYMBOLS[symbol].basePoints
 
-            sum += SYMBOLS[symbol].basePoints
         }
     }
 
-    // fmt.println(symbols)
 
-    IsOk :: proc(first, other: SymbolType) -> bool {
-        if first == other {
-            return true
-        }
-
-        firstSymbol := SYMBOLS[first]
-        otherSymbol := SYMBOLS[other]
-
-        firstSet := firstSymbol.subtypes + { first }
-        otherSet := otherSymbol.subtypes + { other }
-
-        return card(firstSet & otherSet) > 0
-    }
-
-    checkDirs := [?]iv2 {
+    checkDirs :: [?]iv2 {
         {1, 0},
         {0, 1},
         {1, 1},
@@ -153,13 +157,15 @@ Evaluate :: proc(reels: []Reel) -> int {
                 }
 
                 if bonus.length >= MIN_BONUS_LEN {
-                    append(&bonusList, bonus)
+                    sa.append(&res.bonus, bonus)
                 }
             }
         }
     }
 
-    fmt.println(bonusList)
+    for b in sa.slice(&res.bonus) {
+        fmt.println(b)
+    }
 
-    return sum
+    return res
 }

@@ -27,6 +27,7 @@ SPINS_PER_ROUND :: 4
 REROLLS_PER_SPIN :: 2
 MOVES_PER_SPIN :: 5
 
+
 SYMBOLS := [SymbolType]Symbol {
     .None = {},
 

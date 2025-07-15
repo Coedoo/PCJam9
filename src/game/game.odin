@@ -8,6 +8,8 @@ import "core:fmt"
 import "core:slice"
 import "core:mem"
 
+import sa "core:container/small_array"
+
 v2 :: dm.v2
 iv2 :: dm.iv2
 
@@ -15,12 +17,14 @@ GameplayState :: enum {
     Ready,
     Spinning,
     PlayerMove,
+    ScoreAnim,
 }
 
 GameState :: struct {
     state: GameplayState,
 
     reels: [REELS_COUNT]Reel,
+    evalResult: EvaluationResult,
 
     allPoints: int,
     currentPoints: int,
@@ -36,6 +40,10 @@ GameState :: struct {
     // Shop
     shop: Shop,
     showShop: bool,
+
+    // anim
+    bonusAnimIdx: int,
+    bonusAnimTime: f32,
 }
 
 gameState: ^GameState
@@ -146,6 +154,12 @@ ReelMove :: proc(reel: ^Reel, direction: f32) {
     gameState.moves -= 1
 }
 
+StartScoreAnim :: proc() {
+    gameState.bonusAnimIdx = 0
+    gameState.bonusAnimTime = 0
+    gameState.state = .ScoreAnim
+}
+
 @(export)
 GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
@@ -234,11 +248,11 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
 
         if allStopped {
             gameState.state = .PlayerMove
-            gameState.currentPoints = Evaluate(gameState.reels[:])
+            gameState.evalResult = Evaluate(gameState.reels[:])
         }
     }
 
-    // 
+    //
     if gameState.state == .Ready {
         dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({3, 0})))
         if dm.UIButton("spin") {
@@ -253,11 +267,42 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
             gameState.allPoints += gameState.currentPoints
             gameState.currentPoints = 0
 
-            gameState.state = .Ready
+            StartScoreAnim()
 
             if gameState.allPoints >= ROUNDS[gameState.roundIdx].goal {
                 BeginNextRound()
             }
+        }
+    }
+
+    if gameState.state == .ScoreAnim {
+        gameState.bonusAnimTime += dm.time.deltaTime
+
+        if gameState.bonusAnimIdx >= gameState.evalResult.bonus.len {
+            if gameState.bonusAnimTime >= 0.5 {
+                gameState.state = .Ready
+            }
+        }
+
+        if gameState.bonusAnimTime >= 0.5 {
+            bonus := sa.get(gameState.evalResult.bonus, gameState.bonusAnimIdx)
+            
+            delta := bonus.endCell - bonus.startCell
+            dir := glsl.sign(delta)
+
+            cell := bonus.startCell
+            for {
+                gameState.evalResult.points[cell.x][cell.y] *= bonus.length
+
+                if cell == bonus.endCell {
+                    break
+                }
+                cell += dir
+            }
+
+
+            gameState.bonusAnimIdx += 1
+            gameState.bonusAnimTime = 0
         }
     }
 
@@ -266,7 +311,8 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     ////////////
 
     if dm.GetKeyState(.Z) == .JustPressed {
-        gameState.currentPoints = Evaluate(gameState.reels[:])
+        gameState.evalResult = Evaluate(gameState.reels[:])
+        StartScoreAnim()
     }
 
     mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
@@ -357,11 +403,55 @@ GameRender : dm.GameRender : proc(state: rawptr) {
         for y in 0..< ROWS_COUNT {
 
             idx := (startIdx + y) % reel.count
-            pos := SYMBOLS[reel.symbols[idx]].tilesetPos
+            symbol := SYMBOLS[reel.symbols[idx]]
+            pos := symbol.tilesetPos
             sprite := dm.GetSprite(tileSet, pos)
 
-            if reel.symbols[idx] != .None {
-                dm.DrawSprite(sprite, {f32(x), f32(y) - offset} - posOffset)
+            if reel.symbols[idx] != .None { 
+                pos := v2{f32(x), f32(y) - offset} - posOffset
+                dm.DrawSprite(sprite, pos)
+
+                if gameState.state == .ScoreAnim {
+                    points := gameState.evalResult.points[x][y]
+                    dm.DrawText(fmt.tprint(points), pos, fontSize = 0.5)
+                }
+            }
+        }
+    }
+
+    // for bonus in sa.slice(&gameState.evalResult.bonus) {
+    //     delta := bonus.endCell - bonus.startCell
+    //     dir := glsl.sign(delta)
+
+    //     cell := bonus.startCell
+    //     for {
+    //         pos := dm.ToV2(cell) - posOffset
+    //         dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 1, 1, 0.3})
+
+    //         if cell == bonus.endCell {
+    //             break
+    //         }
+
+    //         cell += dir
+    //     }
+    // }
+
+    if gameState.state == .ScoreAnim {
+        if gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
+            bonus := sa.get(gameState.evalResult.bonus, gameState.bonusAnimIdx)
+            delta := bonus.endCell - bonus.startCell
+            dir := glsl.sign(delta)
+
+            cell := bonus.startCell
+            for {
+                pos := dm.ToV2(cell) - posOffset
+                dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 1, 1, 0.3})
+
+                if cell == bonus.endCell {
+                    break
+                }
+
+                cell += dir
             }
         }
     }
