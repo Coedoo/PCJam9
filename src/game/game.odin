@@ -26,6 +26,8 @@ GameState :: struct {
     reels: [REELS_COUNT]Reel,
     evalResult: EvaluationResult,
 
+    boardSprite: dm.Sprite,
+
     allPoints: int,
     currentPoints: int,
 
@@ -61,6 +63,7 @@ RemoveMoney :: proc(money: int) -> bool {
 @export
 PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset(BASIC_TILESET, dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("Board.png", dm.TextureAssetDescriptor{})
 
 
     dm.platform.SetWindowSize(1200, 900)
@@ -76,6 +79,10 @@ GameHotReloaded : dm.GameHotReloaded : proc(gameState: rawptr) {
 @(export)
 GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
     gameState = dm.AllocateGameData(platform, GameState)
+
+    boardTex := dm.GetTextureAsset("Board.png")
+    gameState.boardSprite = dm.CreateSprite(boardTex)
+    gameState.boardSprite.scale = dm.GetSpriteScale(gameState.boardSprite, 32)
 
     startSymbols: [REEL_SIZE]SymbolType
     symbolsCount: int
@@ -317,11 +324,9 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
 
     mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
 
-    posOffset := v2{REELS_COUNT, ROWS_COUNT} / 2
     for &reel, x in gameState.reels {
-
         for y in 0..< ROWS_COUNT {
-            pos := v2{f32(x), f32(y)} - posOffset
+            pos := GetSymbolPosition(x, y)
             bounds := dm.CreateBounds(pos, 1)
 
             if dm.IsInBounds(bounds, mousePos) {
@@ -384,7 +389,9 @@ GameUpdateDebug : dm.GameUpdateDebug : proc(state: rawptr) {
 @(export)
 GameRender : dm.GameRender : proc(state: rawptr) {
     gameState = cast(^GameState) state
+
     dm.ClearColor({0.1, 0.1, 0.3, 1})
+
 
     tileSet := dm.SpriteAtlas {
         texture = dm.GetTextureAsset(BASIC_TILESET),
@@ -400,41 +407,27 @@ GameRender : dm.GameRender : proc(state: rawptr) {
         startIdx := int(reel.position)
         offset := reel.position - f32(startIdx)
 
-        for y in 0..< ROWS_COUNT {
+        for y in 0..< ROWS_COUNT + 1 {
 
             idx := (startIdx + y) % reel.count
             symbol := SYMBOLS[reel.symbols[idx]]
-            pos := symbol.tilesetPos
-            sprite := dm.GetSprite(tileSet, pos)
+            spritePos := symbol.tilesetPos
+            sprite := dm.GetSprite(tileSet, spritePos)
 
             if reel.symbols[idx] != .None { 
-                pos := v2{f32(x), f32(y) - offset} - posOffset
+                pos := GetSymbolPosition(x, y)
+                pos.y -= offset
                 dm.DrawSprite(sprite, pos)
 
-                if gameState.state == .ScoreAnim {
-                    points := gameState.evalResult.points[x][y]
-                    dm.DrawText(fmt.tprint(points), pos, fontSize = 0.5)
+                if y < ROWS_COUNT {
+                    if gameState.state == .ScoreAnim {
+                        points := gameState.evalResult.points[x][y]
+                        dm.DrawText(fmt.tprint(points), pos, fontSize = 0.5)
+                    }
                 }
             }
         }
     }
-
-    // for bonus in sa.slice(&gameState.evalResult.bonus) {
-    //     delta := bonus.endCell - bonus.startCell
-    //     dir := glsl.sign(delta)
-
-    //     cell := bonus.startCell
-    //     for {
-    //         pos := dm.ToV2(cell) - posOffset
-    //         dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 1, 1, 0.3})
-
-    //         if cell == bonus.endCell {
-    //             break
-    //         }
-
-    //         cell += dir
-    //     }
-    // }
 
     if gameState.state == .ScoreAnim {
         if gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
@@ -444,7 +437,7 @@ GameRender : dm.GameRender : proc(state: rawptr) {
 
             cell := bonus.startCell
             for {
-                pos := dm.ToV2(cell) - posOffset
+                pos := GetSymbolPosition(int(cell.x), int(cell.y))
                 dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 1, 1, 0.3})
 
                 if cell == bonus.endCell {
@@ -455,6 +448,9 @@ GameRender : dm.GameRender : proc(state: rawptr) {
             }
         }
     }
+
+    // dm.DrawGrid()
+    dm.DrawSprite(gameState.boardSprite, {0, 0})
 
     dm.DrawText(fmt.tprint("All Points: ", gameState.allPoints), {2.5, 1}, fontSize = 0.4)
     dm.DrawText(fmt.tprint("Current Points: ", gameState.currentPoints), {2.5, 0}, fontSize = 0.4)

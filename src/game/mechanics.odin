@@ -71,6 +71,24 @@ Bonus :: struct {
     symbols: [BONUS_LEN]SymbolType
 }
 
+GetReelSymbol :: proc(x, y: int) -> SymbolType {
+    reel := gameState.reels[x]
+
+    startIdx := int(reel.position)
+    idx := (startIdx + y) % reel.count
+
+    return reel.symbols[idx]
+}
+
+GetSymbolPosition :: proc(x, y: int) -> v2 {
+
+
+    posOffset := v2{REELS_COUNT - 1, ROWS_COUNT - 1} / 2
+    posOffset += v2{0.35, -0.22}
+    posOffset -= v2{f32(x), f32(y)} * v2{0.165, 0.14} // spacing
+
+    return {f32(x), f32(y)} - posOffset
+}
 
 AddSymbolToReel :: proc(reel: ^Reel, symbol: SymbolType) -> bool {
     if reel.count < REEL_SIZE {

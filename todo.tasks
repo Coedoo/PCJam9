@@ -8,13 +8,16 @@ Gameplay:
 
   ☐ Reshuffle after spin
 
-  ☐ Special symbols base
+  ✔ Special symbols base @done (25-07-15 10:56)
 
   ☐ Special symbols:
-    ☐ W and A
-    ☐ nuke
+    ✔ W and A @done (25-07-15 10:56)
+    ☐ Homemade explosives
     ☐ Special Cherry
     ☐ Pipe
+
+  ☐ Items:
+    ☐ A gift from your girlfriend - every X spins add an Homemade explosive to random reel
 
   ☐ Rounds
     ✔ Number of spins @done (25-07-13 16:46)
@@ -26,8 +29,8 @@ Gameplay:
       ☐ Probably back to menu (make sure you can skip cutscenes)
 
   ☐ Points animation:
-    ☐ numbers over basic symbols
-    ☐ then highligh bonus + nubmers
+    ✔ numbers over basic symbols @done (25-07-15 10:57)
+    ✔ then highligh bonus + nubmers @done (25-07-15 10:57)
     ☐ then special stuff
 
   ☐ Shop ?
@@ -36,6 +39,7 @@ Gameplay:
     ✔ Add Shop items @done (25-07-13 21:13)
     ✔ Buying symbols @done (25-07-13 21:13)
     ☐ UI
+    ☐ Removing symbols (?)
 
   ☐ Dev-test round
 
