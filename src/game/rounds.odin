@@ -19,12 +19,21 @@ ROUNDS := []Round {
         goal = 800,
     },
     {
-        goal = 2000
+        goal = 1200
+    },
+    {
+        goal = 1600
     }
 }
 
 BeginNextRound :: proc() {
-    gameState.roundIdx += 1
+
+    if gameState.roundIdx < len(ROUNDS) - 1 {
+        gameState.roundIdx += 1
+    }
+    else {
+        ROUNDS[gameState.roundIdx].goal *= 2
+    }
 
     gameState.spins = SPINS_PER_ROUND
     gameState.allPoints = 0

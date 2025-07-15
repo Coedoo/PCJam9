@@ -73,6 +73,17 @@ ShowShop :: proc(shop: ^Shop) {
                 dm.PushId(i)
                 if dm.Panel("Item") {
                     dm.UILabel(item.symbol)
+
+
+                    symbol := SYMBOLS[item.symbol]
+                    sprite := dm.GetSprite(gameState.symbolsAtlas, symbol.tilesetPos)
+
+                    rect := dm.RectInt{
+                        sprite.texturePos.x, sprite.texturePos.y, 
+                        sprite.textureSize.x, sprite.textureSize.y
+                    }
+
+                    dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
                     dm.UILabel("Price:", item.price)
                     if dm.UIButton("Buy") {
                         if RemoveMoney(item.price) {

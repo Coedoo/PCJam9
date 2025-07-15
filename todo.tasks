@@ -7,8 +7,11 @@ Gameplay:
   ✔ Diagonal Bonus @done (25-07-13 13:24)
 
   ☐ Reshuffle after spin
+  ✔ Endless Round @done (25-07-15 18:42)
 
   ✔ Special symbols base @done (25-07-15 10:56)
+   ☐ REEL INFO
+   ☐ Disable UI
 
   ☐ Special symbols:
     ✔ W and A @done (25-07-15 10:56)
@@ -17,7 +20,9 @@ Gameplay:
     ☐ Pipe
 
   ☐ Items:
+    ☐ Jorb - gives one more spin
     ☐ A gift from your girlfriend - every X spins add an Homemade explosive to random reel
+    ☐ Legally distinct flying squirell - gives one more item to buy in shop
 
   ☐ Rounds
     ✔ Number of spins @done (25-07-13 16:46)
@@ -27,6 +32,18 @@ Gameplay:
     ☐ Fail state
       ✔ Do I just let retry the round? @done (25-07-13 17:33)
       ☐ Probably back to menu (make sure you can skip cutscenes)
+  
+  ☐ Shop ?
+    ✔ Implement money @done (25-07-13 21:13)
+    ☐ Getting money after rounds (probably balatro style)
+    ✔ Add Shop items @done (25-07-13 21:13)
+    ✔ Buying symbols @done (25-07-13 21:13)
+    ☐ UI
+    ☐ Removing symbols (?)
+    ☐ Buying items
+    ☐ Add all items
+    ☐ Selecting reel to put symbol into
+    ☐ Multiple symbols in one item
 
   ☐ Points animation:
     ✔ numbers over basic symbols @done (25-07-15 10:57)
@@ -36,7 +53,6 @@ Gameplay:
  ☐ UI:
    ☐ STYLING
    ☐ Panels
-   ☐ Disable UI
    ☐ New font (kenney pixel)
    ☐ Things to show:
      ✔ Goal @done (25-07-15 16:04)
@@ -48,13 +64,7 @@ Gameplay:
   ☐ Reels info
   
   
-  ☐ Shop ?
-    ✔ Implement money @done (25-07-13 21:13)
-    ☐ Getting money after rounds (probably balatro style)
-    ✔ Add Shop items @done (25-07-13 21:13)
-    ✔ Buying symbols @done (25-07-13 21:13)
-    ☐ UI
-    ☐ Removing symbols (?)
+
 
   ☐ Dev-test round
 

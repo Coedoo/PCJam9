@@ -30,6 +30,8 @@ ScoreAnimStage :: enum {
 GameState :: struct {
     state: GameplayState,
 
+    symbolsAtlas: dm.SpriteAtlas,
+    itemsAtlas: dm.SpriteAtlas,
 
     reels: [REELS_COUNT]Reel,
     evalResult: EvaluationResult,
@@ -110,8 +112,12 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
         rand.shuffle(reel.symbols[:reel.count])
     }
 
-    gameState.money = START_MONEY
+    gameState.symbolsAtlas = dm.SpriteAtlas {
+        texture = dm.GetTextureAsset(BASIC_TILESET),
+        cellSize = 32,
+    }
 
+    gameState.money = START_MONEY
     BeginNextRound()
 }
 
@@ -419,12 +425,6 @@ GameRender : dm.GameRender : proc(state: rawptr) {
 
     dm.ClearColor({0.1, 0.1, 0.3, 1})
 
-
-    tileSet := dm.SpriteAtlas {
-        texture = dm.GetTextureAsset(BASIC_TILESET),
-        cellSize = 32,
-    }
-
     if gameState.state != .Shop {
         for &reel, x in gameState.reels {
             startIdx := int(reel.position)
@@ -435,7 +435,7 @@ GameRender : dm.GameRender : proc(state: rawptr) {
                 idx := (startIdx + y) % reel.count
                 symbol := SYMBOLS[reel.symbols[idx]]
                 spritePos := symbol.tilesetPos
-                sprite := dm.GetSprite(tileSet, spritePos)
+                sprite := dm.GetSprite(gameState.symbolsAtlas, spritePos)
 
                 if reel.symbols[idx] != .None { 
                     pos := GetSymbolPosition(x, y)
@@ -443,10 +443,10 @@ GameRender : dm.GameRender : proc(state: rawptr) {
                     dm.DrawSprite(sprite, pos)
 
                     if y < ROWS_COUNT {
-                        // if gameState.state == .ScoreAnim {
+                        if gameState.state == .ScoreAnim || gameState.state == .PlayerMove {
                             points := gameState.evalResult.points[x][y]
                             dm.DrawText(fmt.tprint(points), pos, fontSize = 0.5)
-                        // }
+                        }
                     }
 
 
