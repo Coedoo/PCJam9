@@ -82,12 +82,11 @@ GetReelSymbol :: proc(x, y: int) -> SymbolType {
 
 GetSymbolPosition :: proc(x, y: int) -> v2 {
 
+    posOffset := -v2{REELS_COUNT - 1, ROWS_COUNT - 1} / 2
+    posOffset -= v2{0.35, 0}
+    posOffset += v2{f32(x), f32(y)} * v2{0.165, 0.14} // spacing
 
-    posOffset := v2{REELS_COUNT - 1, ROWS_COUNT - 1} / 2
-    posOffset += v2{0.35, -0.22}
-    posOffset -= v2{f32(x), f32(y)} * v2{0.165, 0.14} // spacing
-
-    return {f32(x), f32(y)} - posOffset
+    return {f32(x), f32(y)} + posOffset
 }
 
 AddSymbolToReel :: proc(reel: ^Reel, symbol: SymbolType) -> bool {
@@ -123,6 +122,18 @@ IsOk :: proc(first, other: SymbolType) -> bool {
     return card(firstSet & otherSet) > 0
 }
 
+RefreshPoints :: proc(eval: ^EvaluationResult) {
+    sum := 0
+
+    for col in eval.points {
+        for points in col {
+            sum += points
+        }
+    }
+
+    eval.pointsSum = sum
+}
+
 Evaluate :: proc(reels: []Reel) -> EvaluationResult {
     res: EvaluationResult
 
@@ -137,6 +148,7 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
             symbols[x][y] = symbol
             res.points[x][y] = SYMBOLS[symbol].basePoints
 
+            res.pointsSum += SYMBOLS[symbol].basePoints
         }
     }
 

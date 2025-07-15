@@ -95,5 +95,9 @@ ShowShop :: proc(shop: ^Shop) {
             }
             dm.PopId()
         }
+
+        if dm.UIButton("Exit") {
+            gameState.state = .Ready
+        }
     }
 }

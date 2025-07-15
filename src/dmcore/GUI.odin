@@ -1198,6 +1198,12 @@ DrawNode :: proc(ctx: UIContext, renderCtx: ^RenderContext, node: ^UINode) {
             color = node.activeColor
         }
 
+        if node.textureSource == {} {
+            s := GetTextureSize(node.texture)
+            node.textureSource.width = s.x
+            node.textureSource.height = s.y
+        }
+
         DrawRect(
             node.texture,
             node.targetPos,

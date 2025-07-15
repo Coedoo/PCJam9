@@ -16,7 +16,7 @@ REEL_SIZE :: 64
 MIN_BONUS_LEN :: 3
 
 SPEED_RAND_RANGE :: v2{20, 22}
-TIME_RAND_RANGE  :: v2{2, 2.2}
+TIME_RAND_RANGE  :: v2{1, 1.2}
 
 REEL_TIME_OFFSET :: 0.5
 
@@ -38,7 +38,7 @@ SYMBOLS := [SymbolType]Symbol {
 
     .Burger = {
         tilesetPos = {1, 0},
-        basePoints = 15,
+        basePoints = 10,
     },
 
     .Coffee = {
@@ -59,21 +59,21 @@ SYMBOLS := [SymbolType]Symbol {
 
     .Ribbon = {
         tilesetPos = {1, 1},
-        basePoints = 10,
+        basePoints = 1,
 
         subtypes = ~{}
     },
 
     .A = {
         tilesetPos = {2, 1},
-        basePoints = 10,
+        basePoints = 1,
 
         subtypes = { .W },
     },
 
     .W = {
         tilesetPos = {3, 1},
-        basePoints = 10,
+        basePoints = 1,
 
         subtypes = { .A },
     },

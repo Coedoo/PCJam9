@@ -27,4 +27,8 @@ BeginNextRound :: proc() {
     gameState.roundIdx += 1
 
     gameState.spins = SPINS_PER_ROUND
+    gameState.allPoints = 0
+
+    gameState.state = .Shop
+    InitShop(&gameState.shop)
 }
