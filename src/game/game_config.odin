@@ -62,7 +62,21 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 10,
 
         subtypes = ~{}
-    }
+    },
+
+    .A = {
+        tilesetPos = {2, 1},
+        basePoints = 10,
+
+        subtypes = { .W },
+    },
+
+    .W = {
+        tilesetPos = {3, 1},
+        basePoints = 10,
+
+        subtypes = { .A },
+    },
 }
 
 STARTING_SYMBOLS := #partial #sparse [SymbolType]int {

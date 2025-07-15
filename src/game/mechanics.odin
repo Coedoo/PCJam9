@@ -20,6 +20,9 @@ SymbolType :: enum {
     // Special
     SpecialCherry,
     Ribbon,
+
+    A,
+    W,
 }
 
 SymbolTypesSet :: distinct bit_set[SymbolType]
@@ -53,6 +56,22 @@ Reel :: struct {
     moveTargetPos: f32,
 }
 
+EvaluationResult :: struct {
+    bonus: sa.Small_Array(128, Bonus),
+
+    points: [REELS_COUNT][ROWS_COUNT]int,
+    pointsSum: int,
+}
+
+Bonus :: struct {
+    startCell: iv2,
+    endCell: iv2,
+
+    length: int,
+    symbols: [BONUS_LEN]SymbolType
+}
+
+
 AddSymbolToReel :: proc(reel: ^Reel, symbol: SymbolType) -> bool {
     if reel.count < REEL_SIZE {
         reel.symbols[reel.count] = symbol
@@ -70,21 +89,6 @@ CountReelSymbols :: proc(reel: Reel) -> (ret: [SymbolType]int) {
     }
 
     return
-}
-
-EvaluationResult :: struct {
-    bonus: sa.Small_Array(128, Bonus),
-
-    points: [REELS_COUNT][ROWS_COUNT]int,
-    pointsSum: int,
-}
-
-Bonus :: struct {
-    startCell: iv2,
-    endCell: iv2,
-
-    length: int,
-    symbols: [BONUS_LEN]SymbolType
 }
 
 IsOk :: proc(first, other: SymbolType) -> bool {
@@ -160,6 +164,48 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
                     sa.append(&res.bonus, bonus)
                 }
             }
+        }
+    }
+
+    // Fix bonuses for special cases
+    for &bonus in sa.slice(&res.bonus) {
+        startSymbol := bonus.symbols[0]
+
+        delta := bonus.endCell - bonus.startCell
+        dir := glsl.sign(delta)
+
+        // I want it to only score when forms AWA or AWAWA
+        if startSymbol == .A || startSymbol == .W {
+
+            startIdx := 0
+            for i in 0..<bonus.length {
+                if bonus.symbols[i] == .A && bonus.symbols[i + 1] == .W {
+                    startIdx = i
+                    break
+                }
+            }
+
+            endIdx := 0
+            i := startIdx + 1
+            for {
+                if i + 1 >= bonus.length {
+                    break
+                }
+
+                if bonus.symbols[i] == .W && bonus.symbols[i + 1] == .A {
+                    endIdx = i + 1
+                }
+
+                i += 2
+            }
+
+            len := endIdx - startIdx
+
+            // fix bonus
+            copy(bonus.symbols[:], bonus.symbols[startIdx:startIdx + len])
+            bonus.startCell = bonus.startCell + dir * i32(startIdx)
+            bonus.endCell = bonus.startCell + dir * i32(len)
+            bonus.length = len
         }
     }
 
