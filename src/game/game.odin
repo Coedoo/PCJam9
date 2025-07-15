@@ -30,7 +30,6 @@ ScoreAnimStage :: enum {
 GameState :: struct {
     state: GameplayState,
 
-    boardSprite: dm.Sprite,
 
     reels: [REELS_COUNT]Reel,
     evalResult: EvaluationResult,
@@ -75,7 +74,6 @@ RemoveMoney :: proc(money: int) -> bool {
 @export
 PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset(BASIC_TILESET, dm.TextureAssetDescriptor{})
-    dm.RegisterAsset("Board.png", dm.TextureAssetDescriptor{})
 
 
     dm.platform.SetWindowSize(1200, 900)
@@ -91,10 +89,6 @@ GameHotReloaded : dm.GameHotReloaded : proc(gameState: rawptr) {
 @(export)
 GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
     gameState = dm.AllocateGameData(platform, GameState)
-
-    boardTex := dm.GetTextureAsset("Board.png")
-    gameState.boardSprite = dm.CreateSprite(boardTex)
-    gameState.boardSprite.scale = dm.GetSpriteScale(gameState.boardSprite, 32)
 
     startSymbols: [REEL_SIZE]SymbolType
     symbolsCount: int
@@ -495,12 +489,12 @@ GameRender : dm.GameRender : proc(state: rawptr) {
     }
 
     dm.DrawGrid()
-    // dm.DrawSprite(gameState.boardSprite, {0, 0})
 
-    dm.DrawText(fmt.tprint("Goal: ", ROUNDS[gameState.roundIdx].goal), {-3, 4.6}, fontSize = 0.4)
-    dm.DrawText(fmt.tprint("Current Points: ", gameState.allPoints), {-3, 4.0}, fontSize = 0.4)
-    dm.DrawTextCentered(fmt.tprint("Board Points: ", gameState.evalResult.pointsSum), {0, -3}, fontSize = 0.4)
-    // dm.DrawTextCentered(fmt.tprint("Spins left: ", gameState.spins), {2.5, -2}, fontSize = 0.4)
-    // dm.DrawTextCentered(fmt.tprint("Rerolls: ", gameState.rerolls), {2.5, -3}, fontSize = 0.4)
-    // dm.DrawTextCentered(fmt.tprint("Moves: ", gameState.moves), {2.5, -4}, fontSize = 0.4)
+    dm.DrawText(fmt.tprint("Goal:", ROUNDS[gameState.roundIdx].goal), {-3, 4.6}, fontSize = 0.4)
+    dm.DrawText(fmt.tprint("Current Points:", gameState.allPoints), {-3, 4.0}, fontSize = 0.4)
+    dm.DrawTextCentered(fmt.tprint("Board Points:", gameState.evalResult.pointsSum), {0, -3}, fontSize = 0.4)
+    dm.DrawText(fmt.tprint("Spins:", gameState.spins), {-6, 0.5}, fontSize = 0.4)
+    dm.DrawText(fmt.tprint("Reel respins:", gameState.rerolls), {-6, 0}, fontSize = 0.4)
+    dm.DrawText(fmt.tprint("Reel moves:", gameState.moves), {-6, -0.5}, fontSize = 0.4)
+    dm.DrawText(fmt.tprint("Money:", gameState.money), {-6, -1}, fontSize = 0.4)
 }

@@ -32,7 +32,22 @@ Gameplay:
     ✔ numbers over basic symbols @done (25-07-15 10:57)
     ✔ then highligh bonus + nubmers @done (25-07-15 10:57)
     ☐ then special stuff
-
+ 
+ ☐ UI:
+   ☐ STYLING
+   ☐ Panels
+   ☐ Disable UI
+   ☐ New font (kenney pixel)
+   ☐ Things to show:
+     ✔ Goal @done (25-07-15 16:04)
+     ✔ Current Points @done (25-07-15 16:04)
+     ✔ Board Points @done (25-07-15 16:04)
+     ☐ Items
+     ✔ Round / spins / moves @done (25-07-15 16:04)
+     ☐ Money
+  ☐ Reels info
+  
+  
   ☐ Shop ?
     ✔ Implement money @done (25-07-13 21:13)
     ☐ Getting money after rounds (probably balatro style)

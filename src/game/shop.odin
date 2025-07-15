@@ -61,43 +61,49 @@ InitShop :: proc(shop: ^Shop) {
 }
 
 ShowShop :: proc(shop: ^Shop) {
-    if dm.Panel("Shop") {
-        for &item, i in shop.items {
-            if item.bought {
-                continue
-            }
+    if dm.UIContainer("SHOOOP", .MiddleCenter) {
+        if dm.Panel("Shop") {
+            dm.UILabel("shop dot phase dash connect dot com")
+            dm.BeginLayout()
+            for &item, i in shop.items {
+                if item.bought {
+                    continue
+                }
 
-            dm.PushId(i)
-            if dm.Panel("Item") {
-                dm.UILabel(item.symbol)
-                dm.UILabel("Price:", item.price)
-                if dm.UIButton("Buy") {
-                    if RemoveMoney(item.price) {
-                        item.bought = true
+                dm.PushId(i)
+                if dm.Panel("Item") {
+                    dm.UILabel(item.symbol)
+                    dm.UILabel("Price:", item.price)
+                    if dm.UIButton("Buy") {
+                        if RemoveMoney(item.price) {
+                            item.bought = true
 
-                        switch item.acquisitionType {
-                        case .OneReel: {
-                            idx := rand.int_max(REELS_COUNT)
-                            AddSymbolToReel(&gameState.reels[idx], item.symbol)
-                        }
-                        case .RandomReels: {
-                            panic("TODO")
-                        }
-                        case .AllReels: {
-                            for &reel in gameState.reels {
-                                AddSymbolToReel(&reel, item.symbol)
+                            switch item.acquisitionType {
+                            case .OneReel: {
+                                idx := rand.int_max(REELS_COUNT)
+                                AddSymbolToReel(&gameState.reels[idx], item.symbol)
                             }
-                        }
+                            case .RandomReels: {
+                                panic("TODO")
+                            }
+                            case .AllReels: {
+                                for &reel in gameState.reels {
+                                    AddSymbolToReel(&reel, item.symbol)
+                                }
+                            }
 
+                            }
                         }
                     }
                 }
+                dm.PopId()
             }
-            dm.PopId()
-        }
 
-        if dm.UIButton("Exit") {
-            gameState.state = .Ready
+            dm.EndLayout()
+
+            if dm.UIButton("Exit") {
+                gameState.state = .Ready
+            }
         }
     }
 }
