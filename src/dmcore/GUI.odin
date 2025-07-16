@@ -627,12 +627,13 @@ PopStyle :: proc() {
 }
 
 BeginLayout :: proc(
+    text: string,
     axis:= LayoutAxis.X,
     aligmentX := AligmentX.Middle,
     aligmentY := AligmentY.Middle
 )
 {
-    node := AddNode("", {}, uiCtx.defaultStyle, uiCtx.defaultLayout)
+    node := AddNode(text, {}, uiCtx.defaultStyle, uiCtx.defaultLayout)
 
     node.preferredSize[.X] = {.Children, 0, 1}
     node.preferredSize[.Y] = {.Children, 0, 1}
@@ -645,12 +646,13 @@ BeginLayout :: proc(
 
 @(deferred_none=EndLayout)
 LayoutBlock :: proc(
+    text: string,
     axis:= LayoutAxis.X,
     aligmentX := AligmentX.Middle,
     aligmentY := AligmentY.Middle
 ) -> bool
 {
-    BeginLayout(axis, aligmentX, aligmentY)
+    BeginLayout(text, axis, aligmentX, aligmentY)
     return true
 }
 
@@ -875,10 +877,20 @@ GetNodeInteraction :: proc(node: ^UINode) -> (result: UINodeInteraction) {
 }
 
 @(deferred_none=EndPanel)
-Panel :: proc(text: string, aligment: Maybe(Aligment) = nil) -> bool {
+Panel :: proc(
+    text: string, 
+    aligment: Maybe(Aligment) = nil,
+    size: Maybe(iv2) = nil,
+) -> bool
+{
     node := AddNode(text, {.DrawBackground}, uiCtx.panelStyle, uiCtx.panelLayout)
     if al, ok := aligment.?; ok {
         node.childrenAligment = al
+    }
+
+    if size, ok := size.?; ok {
+        node.preferredSize[.X] = {.Fixed, f32(size.x), 1}
+        node.preferredSize[.Y] = {.Fixed, f32(size.y), 1}
     }
 
     PushParent(node)
@@ -1080,7 +1092,7 @@ UISliderInt :: proc(text: string, value: ^int, #any_int min, max: int) -> (res: 
 }
 
 UISlider :: proc(text: string, value: ^f32, min, max: f32) -> (res: bool) {
-    if LayoutBlock(axis = .X) {
+    if LayoutBlock(text, axis = .X) {
         label := AddNode(text, { .DrawText }, uiCtx.textStyle, uiCtx.textLayout)
         // label.preferredSize[.X] = {.Fixed, 200, 0}
 
@@ -1135,7 +1147,7 @@ UISlider :: proc(text: string, value: ^f32, min, max: f32) -> (res: bool) {
 }
 
 UICheckbox :: proc(text: string, value: ^bool) -> (res: bool) {
-    if LayoutBlock(axis = .X) {
+    if LayoutBlock(text, axis = .X) {
         checkbox := AddNode(fmt.tprint("X##", text), {.DrawBackground, .Clickable})
         checkbox.preferredSize[.X] = {.Fixed, 25, 1}
         checkbox.preferredSize[.Y] = {.Fixed, 25, 1}

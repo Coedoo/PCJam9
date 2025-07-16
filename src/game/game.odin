@@ -13,6 +13,12 @@ import sa "core:container/small_array"
 v2 :: dm.v2
 iv2 :: dm.iv2
 
+GameStage :: enum {
+    Menu,
+    Cutscene,
+    Gameplay
+}
+
 GameplayState :: enum {
     Ready,
     Spinning,
@@ -57,8 +63,10 @@ GameState :: struct {
     bonusAnimIdx: int,
 
     animStartPoints: int,
-    animPointsCount: int
+    animPointsCount: int,
 
+    // 
+    showReelInfo: bool,
 }
 
 gameState: ^GameState
@@ -152,6 +160,8 @@ ReelSpin :: proc(reel: ^Reel, timeOffset: f32, useReroll: bool) {
     reel.spinTimer = rand.float32_range(TIME_RAND_RANGE.x, TIME_RAND_RANGE.y) + timeOffset
 
     reel.spinState = .Spinning
+
+    rand.shuffle(reel.symbols[:reel.count])
 
     if useReroll {
         gameState.rerolls -= 1
@@ -349,6 +359,12 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
         }
     }
 
+
+    dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({-4, -3})))
+    if dm.UIButton("Reel Info") {
+        gameState.showReelInfo = true
+    }
+
     /////////////
     // DEBUG
     ////////////
@@ -388,27 +404,6 @@ GameUpdate : dm.GameUpdate : proc(state: rawptr) {
         }
     }
 
-    // if dm.Panel("SymbolsCount") {
-    //     dm.BeginLayout(axis = .X)
-
-    //     for &reel, rIdx in gameState.reels {
-    //         count := CountReelSymbols(reel)
-
-    //         dm.BeginLayout(axis = .Y)
-
-    //         for c, i in count {
-    //             dm.PushId(rIdx)
-    //             if c != 0 {
-    //                 dm.UILabel(cast(SymbolType) i, c)
-    //             }
-    //             dm.PopId()
-    //         }
-
-    //         dm.EndLayout()
-    //     }
-
-    //     dm.EndLayout()
-    // }
 
     // fmt.println()
     // fmt.println(dm.CreateUIDebugString())
@@ -445,7 +440,7 @@ GameRender : dm.GameRender : proc(state: rawptr) {
                     if y < ROWS_COUNT {
                         if gameState.state == .ScoreAnim || gameState.state == .PlayerMove {
                             points := gameState.evalResult.points[x][y]
-                            dm.DrawText(fmt.tprint(points), pos, fontSize = 0.5)
+                            dm.DrawText(fmt.tprint(points), pos, fontSize = 0.5, color = dm.BLACK)
                         }
                     }
 
@@ -488,7 +483,8 @@ GameRender : dm.GameRender : proc(state: rawptr) {
         ShowShop(&gameState.shop)
     }
 
-    dm.DrawGrid()
+    // dm.DrawGrid()
+
 
     dm.DrawText(fmt.tprint("Goal:", ROUNDS[gameState.roundIdx].goal), {-3, 4.6}, fontSize = 0.4)
     dm.DrawText(fmt.tprint("Current Points:", gameState.allPoints), {-3, 4.0}, fontSize = 0.4)
@@ -497,4 +493,12 @@ GameRender : dm.GameRender : proc(state: rawptr) {
     dm.DrawText(fmt.tprint("Reel respins:", gameState.rerolls), {-6, 0}, fontSize = 0.4)
     dm.DrawText(fmt.tprint("Reel moves:", gameState.moves), {-6, -0.5}, fontSize = 0.4)
     dm.DrawText(fmt.tprint("Money:", gameState.money), {-6, -1}, fontSize = 0.4)
+
+    if gameState.showReelInfo {
+        ShowReelInfo()
+    }
+
+    
+    // fmt.println()
+    // fmt.println(dm.CreateUIDebugString())
 }

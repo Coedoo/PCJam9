@@ -10,7 +10,7 @@ BASIC_TILESET :: "symbols.png"
 START_MONEY :: 1000
 
 REELS_COUNT :: 5
-ROWS_COUNT :: 4
+ROWS_COUNT :: 5
 REEL_SIZE :: 64
 
 MIN_BONUS_LEN :: 3
@@ -36,7 +36,7 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 10,
     },
 
-    .Burger = {
+    .Star = {
         tilesetPos = {1, 0},
         basePoints = 10,
     },
@@ -46,7 +46,7 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 10,
     },
 
-    .Lemon = {
+    .Ribbon = {
         tilesetPos = {3, 0},
         basePoints = 10,
     },
@@ -57,7 +57,7 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 10,
     },
 
-    .Ribbon = {
+    .Pipe = {
         tilesetPos = {1, 1},
         basePoints = 1,
 
@@ -81,7 +81,7 @@ SYMBOLS := [SymbolType]Symbol {
 
 STARTING_SYMBOLS := #partial #sparse [SymbolType]int {
     .Cherry = 5,
-    .Burger  = 5,
+    .Star  = 5,
     .Coffee   = 5,
-    .Lemon  = 5,
+    .Ribbon  = 5,
 }

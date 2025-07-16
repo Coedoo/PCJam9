@@ -13,13 +13,13 @@ import sa "core:container/small_array"
 SymbolType :: enum {
     None,
     Cherry,
-    Burger,
+    Star,
     Coffee,
-    Lemon,
+    Ribbon,
 
     // Special
     SpecialCherry,
-    Ribbon,
+    Pipe,
 
     A,
     W,
@@ -174,10 +174,15 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
                     continue
                 }
 
-                bonus: Bonus
-                cell := iv2{i32(x), i32(y)}
 
+                bonus: Bonus
+
+                cell := iv2{i32(x), i32(y)}
                 bonus.startCell = cell
+
+                if symbols[cell.x][cell.y] == .Pipe {
+                    continue
+                }
 
                 for (cell.x >= 0 && cell.x < REELS_COUNT && 
                      cell.y >= 0 && cell.y < ROWS_COUNT &&
@@ -244,4 +249,51 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
     }
 
     return res
+}
+
+ShowReelInfo :: proc() {
+    if dm.UIContainer("ReelsInfo", .MiddleCenter) {
+        if dm.Panel("REELSINFO", aligment = dm.Aligment{.Middle, .Middle}) {
+            dm.BeginLayout("reelslayout1", axis = .X)
+
+            for &reel, rIdx in gameState.reels {
+                count := CountReelSymbols(reel)
+                
+                dm.PushId(rIdx)
+                dm.BeginLayout("reelslayout2", axis = .Y)
+
+                for c, i in count {
+                    if c != 0 {
+                        symbol := SYMBOLS[i]
+
+
+                        sprite := dm.GetSprite(gameState.symbolsAtlas, symbol.tilesetPos)
+
+                        rect := dm.RectInt{
+                            sprite.texturePos.x, sprite.texturePos.y, 
+                            sprite.textureSize.x, sprite.textureSize.y
+                        }
+
+                        dm.PushId(int(i))
+                        dm.BeginLayout("reelslayout3", axis = .X)
+                        dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
+                        dm.UILabel(fmt.tprintf("x%v", c))
+                        dm.EndLayout()
+                        dm.PopId()
+
+                    }
+                }
+
+                dm.EndLayout()
+                dm.PopId()
+            }
+
+            dm.EndLayout()
+
+            // dm.UISpacer(30)
+            if dm.UIButton("OK") {
+                gameState.showReelInfo = false
+            }
+        }
+    }
 }

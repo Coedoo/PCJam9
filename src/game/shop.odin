@@ -21,22 +21,22 @@ ShopItem :: struct {
 }
 
 SHOP_ITEMS := []ShopItem{
-    {
-        symbol = .Cherry,
-        price = 10,
-    },
-    {
-        symbol = .Burger,
-        price = 10,
-    },
-    {
-        symbol = .Coffee,
-        price = 10,
-    },
-    {
-        symbol = .Lemon,
-        price = 10,
-    },
+    // {
+    //     symbol = .Cherry,
+    //     price = 10,
+    // },
+    // {
+    //     symbol = .Burger,
+    //     price = 10,
+    // },
+    // {
+    //     symbol = .Coffee,
+    //     price = 10,
+    // },
+    // {
+    //     symbol = .Lemon,
+    //     price = 10,
+    // },
 
     {
         symbol = .SpecialCherry,
@@ -44,7 +44,17 @@ SHOP_ITEMS := []ShopItem{
     },
 
     {
-        symbol = .Ribbon,
+        symbol = .Pipe,
+        price = 15,
+    },
+
+    {
+        symbol = .A,
+        price = 15,
+    },
+
+    {
+        symbol = .W,
         price = 15,
     },
 }
@@ -64,7 +74,7 @@ ShowShop :: proc(shop: ^Shop) {
     if dm.UIContainer("SHOOOP", .MiddleCenter) {
         if dm.Panel("Shop") {
             dm.UILabel("shop dot phase dash connect dot com")
-            dm.BeginLayout()
+            dm.BeginLayout("shoplayout")
             for &item, i in shop.items {
                 if item.bought {
                     continue
