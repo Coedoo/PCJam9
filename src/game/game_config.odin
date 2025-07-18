@@ -27,6 +27,8 @@ SPINS_PER_ROUND :: 4
 REROLLS_PER_SPIN :: 2
 MOVES_PER_SPIN :: 5
 
+SKIP_CUTSCENES :: true
+
 
 SYMBOLS := [SymbolType]Symbol {
     .None = {},
@@ -84,4 +86,12 @@ STARTING_SYMBOLS := #partial #sparse [SymbolType]int {
     .Star  = 5,
     .Coffee   = 5,
     .Ribbon  = 5,
+}
+
+ITEMS := [ItemType]Item {
+    .FakeJorb = {
+        name = "Fake Jorb",
+        desc = "Grants one more spin per round.\n\nThe real one spins.\nBut, as a certain company, \nwe don't have the tech for that",
+        tilesetPos = {0, 0}
+    }
 }

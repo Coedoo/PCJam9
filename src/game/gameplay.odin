@@ -25,7 +25,6 @@ SpinAll :: proc() {
         ReelSpin(&reel, f32(i) * REEL_TIME_OFFSET, false)
     }
 
-
     gameState.rerolls = REROLLS_PER_SPIN
     gameState.moves = MOVES_PER_SPIN
 }
@@ -350,6 +349,26 @@ GameplayRender :: proc() {
 
     // dm.DrawGrid()
 
+    for itemD, i in gameState.itemsData {
+        if itemD.isBought {
+            itemT := cast(ItemType) i
+            item := ITEMS[itemT]
+            sprite := dm.GetSprite(gameState.itemsAtlas, item.tilesetPos)
+            pos := v2{4, f32(i)}
+            dm.DrawSprite(sprite, pos)
+
+            mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
+            bounds := dm.CreateBounds(pos, 1)
+            if dm.IsInBounds(bounds, mousePos) {
+                dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {0, 0})
+                if dm.Panel("Tooltip") {
+                    dm.UILabel(item.name)
+                    dm.UISpacer(10)
+                    dm.UILabel(item.desc)
+                }
+            }
+        }
+    }
 
     dm.DrawText(fmt.tprint("Goal:", ROUNDS[gameState.roundIdx].goal), {-3, 4.6}, fontSize = 0.4)
     dm.DrawText(fmt.tprint("Current Points:", gameState.allPoints), {-3, 4.0}, fontSize = 0.4)

@@ -28,7 +28,6 @@ SymbolType :: enum {
 SymbolTypesSet :: distinct bit_set[SymbolType]
 
 Symbol :: struct {
-    type: SymbolType,
     tilesetPos: iv2,
 
     subtypes: SymbolTypesSet,
@@ -70,6 +69,23 @@ Bonus :: struct {
     length: int,
     symbols: [BONUS_LEN]SymbolType
 }
+
+
+ItemType :: enum {
+    FakeJorb,
+}
+
+ItemData :: struct {
+    isBought: bool,
+}
+
+Item :: struct {
+    name: string,
+    desc: string,
+
+    tilesetPos: iv2,
+}
+
 
 GetReelSymbol :: proc(x, y: int) -> SymbolType {
     reel := gameState.reels[x]

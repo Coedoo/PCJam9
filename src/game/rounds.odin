@@ -10,6 +10,7 @@ import "core:mem"
 
 Round :: struct {
     goal: int,
+    cutsceneIdx: int,
 }
 
 ROUNDS := []Round {
@@ -17,6 +18,7 @@ ROUNDS := []Round {
 
     {
         goal = 800,
+        cutsceneIdx = 1,
     },
     {
         goal = 1200
@@ -27,7 +29,6 @@ ROUNDS := []Round {
 }
 
 BeginNextRound :: proc() {
-
     if gameState.roundIdx < len(ROUNDS) - 1 {
         gameState.roundIdx += 1
     }
@@ -35,8 +36,20 @@ BeginNextRound :: proc() {
         ROUNDS[gameState.roundIdx].goal *= 2
     }
 
+    if ROUNDS[gameState.roundIdx].cutsceneIdx != 0 && SKIP_CUTSCENES == false {
+        gameState.stage = .Cutscene
+        gameState.cutsceneIdx = ROUNDS[gameState.roundIdx].cutsceneIdx
+    }
+    else {
+        gameState.stage = .Gameplay
+    }
+
     gameState.spins = SPINS_PER_ROUND
     gameState.allPoints = 0
+
+    if HasItem(.FakeJorb) {
+        gameState.spins += 1
+    }
 
     gameState.state = .Shop
     InitShop(&gameState.shop)

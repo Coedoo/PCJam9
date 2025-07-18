@@ -54,9 +54,15 @@ GameState :: struct {
     rerolls:  int,
     moves:    int,
 
+    // Items 
+    itemsData: [ItemType]ItemData,
+
     // Shop
     shop: Shop,
     showShop: bool,
+
+    // Cutscene
+    cutsceneIdx: int,
 
     // anim
     animStage: ScoreAnimStage,
@@ -67,12 +73,16 @@ GameState :: struct {
     animStartPoints: int,
     animPointsCount: int,
 
-    // 
+    // Menu state
     showReelInfo: bool,
 }
 
 gameState: ^GameState
 
+
+HasItem :: proc(item: ItemType) -> bool {
+    return gameState.itemsData[item].isBought
+}
 
 RemoveMoney :: proc(money: int) -> bool {
     if gameState.money >= money {
@@ -86,6 +96,13 @@ RemoveMoney :: proc(money: int) -> bool {
 @export
 PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset(BASIC_TILESET, dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("items.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("Jelly_anim.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("enviro.png", dm.TextureAssetDescriptor{})
+
+
+    dm.RegisterAsset("jelly_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("jelly_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
 
 
     dm.platform.SetWindowSize(1200, 900)
@@ -127,10 +144,20 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
         cellSize = 32,
     }
 
+    gameState.itemsAtlas = dm.SpriteAtlas {
+        texture = dm.GetTextureAsset("items.png"),
+        cellSize = 32,
+        spacing = 1,
+        padding = 1,
+    }
+
+
+    InitCharacters()
+
     gameState.money = START_MONEY
     BeginNextRound()
 
-    gameState.stage = .Gameplay
+    // gameState.stage = .Menu
 }
 
 
@@ -138,9 +165,15 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
 GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
 
+    if dm.GetKeyState(.A) == .JustPressed {
+        for &i in gameState.itemsData {
+            i.isBought = true
+        }
+    }
+
     switch gameState.stage {
-    case .Menu:     
-    case .Cutscene: 
+    case .Menu:     MenuUpdate()
+    case .Cutscene: UpdateCutscene(&Cutscenes[gameState.cutsceneIdx])
     case .Gameplay: GameplayUpdate()
     }
 
@@ -159,10 +192,14 @@ GameRender : dm.GameRender : proc(state: rawptr) {
 
     dm.ClearColor({0.1, 0.1, 0.3, 1})
 
+    // dm.BeginScreenSpace()
+    // tex := dm.GetTextureAsset("jelly_curious.png")
+    // dm.DrawRectPos(tex, {600, 800}, size = v2{450, 600}, origin = v2{0.5, 1})
+    // dm.EndScreenSpace()
 
     switch gameState.stage {
-    case .Menu:     
-    case .Cutscene: 
+    case .Menu:     MenuRender()
+    case .Cutscene: DrawCutscene(&Cutscenes[gameState.cutsceneIdx])
     case .Gameplay: GameplayRender()
     }
 
