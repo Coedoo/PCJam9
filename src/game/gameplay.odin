@@ -10,6 +10,13 @@ import "core:mem"
 
 import sa "core:container/small_array"
 
+BeginGameplay :: proc() {
+    gameState.money = START_MONEY
+
+    gameState.stage = .Gameplay
+    BeginNextRound()
+}
+
 SpinAll :: proc() {
     if gameState.spins == 0 {
         return
@@ -84,6 +91,9 @@ GameplayUpdate :: proc() {
             gameState.money += base + interest + spins
 
             BeginNextRound()
+        }
+        else if gameState.spins <= 0 {
+            gameState.stage = .Menu
         }
     }
 
@@ -196,7 +206,7 @@ GameplayUpdate :: proc() {
 
                     cell := bonus.startCell
                     for {
-                        gameState.evalResult.points[cell.x][cell.y] *= bonus.length
+                        gameState.evalResult.points[cell.x][cell.y] *= BONUS_MULTIPLIERS[bonus.length]
 
                         if cell == bonus.endCell {
                             break
@@ -278,8 +288,28 @@ GameplayUpdate :: proc() {
     }
 }
 
+BoardSize :: proc() -> v2 {
+    x := f32(REELS_COUNT) + f32(REELS_COUNT - 1) * REELS_SPACING
+    y := f32(ROWS_COUNT)  + f32(ROWS_COUNT  - 1) * SYMBOLS_SPACING
+
+    return {x, y}
+}
+
+GetSymbolPosition :: proc(x, y: int) -> v2 {
+    pos := v2{f32(x), f32(y)}
+
+    pos.x += f32(x) * REELS_SPACING
+    pos.y += f32(y) * SYMBOLS_SPACING
+
+    pos.x -= (REELS_COUNT - 1) / f32(2) + ((REELS_COUNT - 1) * REELS_SPACING)   / f32(2)
+    pos.y -= (ROWS_COUNT - 1)  / f32(2) + ((ROWS_COUNT - 1)  * SYMBOLS_SPACING) / f32(2)
+
+    return pos
+}
+
+
 GameplayRender :: proc() {
-        if gameState.state != .Shop {
+    if gameState.state != .Shop {
         for &reel, x in gameState.reels {
             startIdx := int(reel.position)
             offset := reel.position - f32(startIdx)
@@ -294,6 +324,7 @@ GameplayRender :: proc() {
                 if reel.symbols[idx] != .None { 
                     pos := GetSymbolPosition(x, y)
                     pos.y -= offset
+                    // dm.DrawRectBlank(pos, {1, 1})
                     dm.DrawSprite(sprite, pos)
 
                     if y < ROWS_COUNT {
@@ -337,9 +368,10 @@ GameplayRender :: proc() {
         ShowShop(&gameState.shop)
     }
 
-    // dm.DrawGrid()
+    panelTex := dm.GetTextureAsset("panel_right.png")
+    dm.DrawRect(panelTex, {5.8, 1.5}, size = v2{4, 3})
 
-    if dm.UIContainer("Items", .TopRight, {-200, 100}) {
+    if dm.UIContainer("Items", .TopRight, {-300, 250}) {
         x := 0
         y := 0
 
@@ -348,10 +380,10 @@ GameplayRender :: proc() {
                 item := ITEMS[itemType]
 
                 size :: 64
-                spacing :: 1
+                spacing :: 18
 
                 id := fmt.aprint(itemType, allocator = dm.uiCtx.transientAllocator)
-                node := dm.AddNode(id, { .BackgroundTexture, .Clickable, .AnchoredPosition})
+                node := dm.AddNode(id, { .Clickable, .AnchoredPosition, .BackgroundTexture })
 
                 node.texture = gameState.itemsAtlas.texture
                 node.textureSource = dm.GetSpriteRect(gameState.itemsAtlas, item.tilesetPos)
@@ -370,7 +402,7 @@ GameplayRender :: proc() {
                 }
 
                 x += 1
-                if x >= 3 {
+                if x >= 4 {
                     x = 0
                     y += 1
                 }
@@ -383,27 +415,40 @@ GameplayRender :: proc() {
     style.fontSize = 35
     style.font = cast(dm.FontHandle) dm.GetAsset("Kenney Future Narrow.ttf")
 
+    panelTex = dm.GetTextureAsset("panel.png")
+    dm.DrawRect(panelTex, {-5.8, 0}, size = v2{4, 6})
+
     if dm.UIContainer("Game Stats", .MiddleLeft, {20, 0}, layoutAxis = .Y ) {
+        // dm.Panel("GameStatsPanel", size = iv2{128, 192} * 3, texture = panelTex)
+
         dm.PushStyle(style)
         dm.UILabel("Goal:", ROUNDS[gameState.roundIdx].goal)
         dm.UILabel("Current:", gameState.allPoints)
-        
+
+        dm.UISpacer(20)
+
+        dm.UILabel("Money:", gameState.money)
+
         dm.UISpacer(20)
 
         dm.UILabel("Spins:", gameState.spins)
         dm.UILabel("Reel respins:", gameState.rerolls)
         dm.UILabel("Reel moves:", gameState.moves)
-        dm.UILabel("Money:", gameState.money)
 
         dm.PopStyle()
+
+        dm.UISpacer(100)
 
         if dm.UIButton("Reel Info") {
             gameState.showReelInfo = true
         }
     }
 
+    panelTex = dm.GetTextureAsset("panel_top.png")
+    dm.DrawRect(panelTex, {0, 4.5}, size = v2{5, 1})
+
     dm.PushStyle(style)
-    if dm.UIContainer("BoardPoints", .BotCenter, {0, -20}, layoutAxis = .Y ) {
+    if dm.UIContainer("BoardPoints", .TopCenter, {0, 20}, layoutAxis = .Y ) {
         dm.UILabel("Board Points:", gameState.evalResult.pointsSum)
     }
     dm.PopStyle()
@@ -412,4 +457,6 @@ GameplayRender :: proc() {
     if gameState.showReelInfo {
         ShowReelInfo()
     }
+
+    dm.DrawGrid()
 }

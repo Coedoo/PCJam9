@@ -39,6 +39,8 @@ SetWindowSize :: proc(width, height: int) {
 
     dm.ResizeFramebuffer(engineData.renderCtx, engineData.renderCtx.ppFramebufferSrc)
     dm.ResizeFramebuffer(engineData.renderCtx, engineData.renderCtx.ppFramebufferDest)
+
+    engineData.renderCtx.camera.aspect = f32(width) / f32(height)
 }
 
 FileLoadedCallback :: proc(data: []u8, key: string) {

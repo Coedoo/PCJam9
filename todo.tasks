@@ -11,13 +11,44 @@ Gameplay:
 
   ✔ Special symbols base @done (25-07-15 10:56)
    ✔ REEL INFO @done (25-07-15 19:43)
+ 
+ ☐ MAKE THE GAME FUN
+
+ ☐ WASM: COLORS DOESN'T LOOK CORRECT (OF COURSE)
+
+ ☐ Make final UI Layout:
+   ☐ TURN OFF THE FUCKING ANIMATIONS IN GAME
+   ☐ LEFT PANEL:
+     ☐ GOAL
+     ☐ CURRENT POINTS 
+     ☐ (Space, maybe bigger font, it's the most important)
+     ☐ GOLD (Icon?)
+     ☐ CURENT SPINS, MOVES, RESPINS (Kinda important, maybe change place, Money here is kinda off)
+     ☐ Reel info (I don't have better place for that)
+
+   ☐ REELS:
+
+   ☐ TOP PANEL:
+     ☐ BOARD POINTS (I would love some animation when it's going up)
+   ☐ REELS BUTTONS:
+     ☐ STYLIZE THEM
+     ☐ Move to render function?
+   ☐ RIGHT PANEL
+     ☐ I think it might be the same as Left panel
+   ☐ SPIN AND ACCEPT BUTTONS
+     ☐ (BIGGER, visible, maybe some flashing anim)
+     ☐ Red and blue?
+
+   ☐ SHOP:
+     ☐ Approximately the size of the Reels
+     ☐ Reels buttons still visible (?)
+     ☐ Just make it look nice, dunno
+
 
  ☐ MENU
- ☐ Make final UI Layout
  ✔ Disable UI @done (25-07-19 10:11)
- ☐ Longer chains should give more multiplier
-
- ☐ MAKE THE GAME FUN
+ ✔ Longer chains should give more multiplier @done (25-07-19 16:32)
+ ☐ Game stage transition
 
   ☐ Special symbols:
     ✔ W and A @done (25-07-15 10:56)
@@ -42,13 +73,13 @@ Gameplay:
   
   ☐ Shop ?
     ✔ Implement money @done (25-07-13 21:13)
-    ☐ Getting money after rounds (probably balatro style)
+    ✔ Getting money after rounds (probably balatro style) @done (25-07-19 16:41)
     ✔ Add Shop items @done (25-07-13 21:13)
     ✔ Buying symbols @done (25-07-13 21:13)
     ☐ UI
     ☐ Removing symbols (?)
-    ☐ Buying items
-    ☐ Add all items
+    ✔ Buying items @done (25-07-19 16:41)
+    ✔ Add all items @done (25-07-19 16:41)
     ☐ Selecting reel to put symbol into
     ☐ Multiple symbols in one item
     ☐ Weighten shop buying
@@ -61,14 +92,14 @@ Gameplay:
  ☐ UI:
    ☐ STYLING
    ☐ Panels
-   ☐ New font (kenney pixel)
+   ✔ New font (kenney pixel) @done (25-07-19 16:41)
    ☐ Things to show:
      ✔ Goal @done (25-07-15 16:04)
      ✔ Current Points @done (25-07-15 16:04)
      ✔ Board Points @done (25-07-15 16:04)
-     ☐ Items
+     ✔ Items @done (25-07-19 16:41)
      ✔ Round / spins / moves @done (25-07-15 16:04)
-     ☐ Money
+     ✔ Money @done (25-07-19 16:41)
 
   ☐ Game END STATS
 

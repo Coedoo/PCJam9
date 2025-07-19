@@ -1,6 +1,7 @@
 package game
 
 import "core:fmt"
+import "core:slice"
 import "core:math/rand"
 
 import dm "../dmcore"
@@ -20,10 +21,7 @@ ShopSymbol :: struct {
     acquisitionType: AcquisitionType,
 }
 
-
-
 SHOP_SYMBOLS := []ShopSymbol{ 
-
     {
         symbol = .SpecialCherry,
         price = 15,
@@ -46,13 +44,29 @@ SHOP_SYMBOLS := []ShopSymbol{
 }
 
 Shop :: struct {
-    items: [SHOP_ITEMS_COUNT]ShopSymbol,
+    symbols: [SHOP_ITEMS_COUNT]ShopSymbol,
+
+    itemsCount: int,
+    items: [5]ItemType
 }
 
 InitShop :: proc(shop: ^Shop) {
-    for &item in shop.items {
+    for &symbol in shop.symbols {
         idx := rand.int_max(len(SHOP_SYMBOLS))
-        item = SHOP_SYMBOLS[idx]
+        symbol = SHOP_SYMBOLS[idx]
+    }
+
+    shop.itemsCount = 2
+    allItems: [len(ItemType)]ItemType
+    for i in 0..<len(allItems) {
+        allItems[i] = cast(ItemType) i
+    }
+
+    rand.shuffle(allItems[:])
+
+    idx := 0
+    for i in 0..<shop.itemsCount {
+        shop.items[i] = allItems[i]
     }
 }
 
@@ -68,8 +82,8 @@ ShowShop :: proc(shop: ^Shop) {
             dm.NextNodeStyle(style)
             dm.UILabel("shop dot phase dash connect dot com")
             
-            dm.BeginLayout("shoplayout")
-            for &item, i in shop.items {
+            dm.BeginLayout("shoplayout", axis = .X)
+            for &item, i in shop.symbols {
                 if item.bought {
                     continue
                 }
@@ -80,12 +94,7 @@ ShowShop :: proc(shop: ^Shop) {
                     dm.UILabel(item.symbol)
 
                     symbol := SYMBOLS[item.symbol]
-                    sprite := dm.GetSprite(gameState.symbolsAtlas, symbol.tilesetPos)
-
-                    rect := dm.RectInt{
-                        sprite.texturePos.x, sprite.texturePos.y, 
-                        sprite.textureSize.x, sprite.textureSize.y
-                    }
+                    rect := dm.GetSpriteRect(gameState.symbolsAtlas, symbol.tilesetPos)
 
                     imageNode := dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
                     dm.NextNodeStyle(style)
@@ -95,18 +104,17 @@ ShowShop :: proc(shop: ^Shop) {
                             item.bought = true
 
                             switch item.acquisitionType {
-                            case .OneReel: {
+                            case .OneReel:
                                 idx := rand.int_max(REELS_COUNT)
                                 AddSymbolToReel(&gameState.reels[idx], item.symbol)
-                            }
-                            case .RandomReels: {
+
+                            case .RandomReels:
                                 panic("TODO")
-                            }
-                            case .AllReels: {
+
+                            case .AllReels:
                                 for &reel in gameState.reels {
                                     AddSymbolToReel(&reel, item.symbol)
                                 }
-                            }
 
                             }
                         }
@@ -121,6 +129,39 @@ ShowShop :: proc(shop: ^Shop) {
             }
 
             dm.EndLayout()
+
+            dm.BeginLayout("ItemsLayout", axis = .X)
+            for i in 0..<shop.itemsCount {
+                if gameState.itemsData[shop.items[i]].isBought {
+                    continue
+                }
+
+                dm.PushId(i)
+                if dm.Panel("Itemmm") {
+                    item := ITEMS[shop.items[i]]
+
+                    dm.NextNodeStyle(style)
+                    dm.UILabel(item.name)
+
+                    rect := dm.GetSpriteRect(gameState.itemsAtlas, item.tilesetPos)
+                    imageNode := dm.UIImage(gameState.itemsAtlas.texture, source = rect)
+
+                    dm.UILabel("Price:", item.price)
+
+                    if dm.UIButton("Buy") {
+                        if RemoveMoney(item.price) {
+                            gameState.itemsData[shop.items[i]].isBought = true
+                        }
+                    }
+
+                    if dm.GetNodeInteraction(imageNode).hovered {
+                        ItemTooltip(shop.items[i])
+                    }
+                }
+                dm.PopId()
+            }
+            dm.EndLayout()
+
 
             if dm.UIButton("Exit") {
                 gameState.state = .Ready

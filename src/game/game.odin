@@ -98,7 +98,14 @@ PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset(BASIC_TILESET, dm.TextureAssetDescriptor{})
     dm.RegisterAsset("items.png", dm.TextureAssetDescriptor{})
     dm.RegisterAsset("Jelly_anim.png", dm.TextureAssetDescriptor{})
+    
     dm.RegisterAsset("enviro.png", dm.TextureAssetDescriptor{})
+    
+    // UI
+    dm.RegisterAsset("enviro.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("panel.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("panel_top.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("panel_right.png", dm.TextureAssetDescriptor{})
 
 
     dm.RegisterAsset("jelly_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
@@ -157,10 +164,7 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
 
     InitCharacters()
 
-    gameState.money = START_MONEY
-    BeginNextRound()
-
-    // gameState.stage = .Menu
+    BeginGameplay()
 }
 
 

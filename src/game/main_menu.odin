@@ -12,6 +12,7 @@ MenuStage :: enum {
     Main,
     LevelSelect,
     Settings,
+    Tutorial,
     Credits,
 }
 
@@ -41,7 +42,8 @@ MenuUpdate :: proc() {
         switch gameState.menuStage {
         case .Main:
 
-            if dm.UIButton("Play")     do gameState.menuStage = .LevelSelect
+            if dm.UIButton("Play")     do BeginGameplay()
+            if dm.UIButton("Tutorial") do gameState.menuStage = .Tutorial
             if dm.UIButton("Settings") do gameState.menuStage = .Settings
             if dm.UIButton("Credits")  do gameState.menuStage = .Credits
 
@@ -55,6 +57,15 @@ MenuUpdate :: proc() {
             //         gameState.stage = .Gameplay
             //     }
             // }
+
+            dm.UISpacer(20)
+            if dm.UIButton("Back") do gameState.menuStage = .Main
+
+        case .Tutorial:
+            dm.UILabel("TUTORIAL")
+            dm.UISpacer(10)
+
+            dm.UILabel("It's literally Balatro")
 
             dm.UISpacer(20)
             if dm.UIButton("Back") do gameState.menuStage = .Main

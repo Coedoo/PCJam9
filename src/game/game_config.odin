@@ -14,6 +14,14 @@ ROWS_COUNT :: 5
 REEL_SIZE :: 64
 
 MIN_BONUS_LEN :: 3
+BONUS_MULTIPLIERS := []int {0, 1, 1, 3, 5, 8}
+
+//
+
+REELS_SPACING   :: 10 / f32(32)
+SYMBOLS_SPACING :: 5 / f32(32)
+
+//
 
 SPEED_RAND_RANGE :: v2{20, 22}
 TIME_RAND_RANGE  :: v2{1, 1.2}
@@ -33,8 +41,8 @@ MOVES_PER_SPIN :: 5
 BASE_MONEY_PER_ROUND :: 10
 INTEREST_STEP :: 5
 
-
 SKIP_CUTSCENES :: true
+
 
 SYMBOLS := [SymbolType]Symbol {
     .None = {},
@@ -89,16 +97,18 @@ SYMBOLS := [SymbolType]Symbol {
 
 STARTING_SYMBOLS := #partial #sparse [SymbolType]int {
     .Cherry = 5,
-    .Star  = 5,
-    .Coffee   = 5,
-    .Ribbon  = 5,
+    .Star = 5,
+    .Coffee = 5,
+    .Ribbon = 5,
 }
 
 ITEMS := [ItemType]Item {
     .FakeJorb = {
         name = "Fake Jorb",
         desc = "Grants one more spin per round.\n\nThe real one spins.\nBut, as a certain company, \nwe don't have the tech for that",
-        tilesetPos = {0, 0}
+        tilesetPos = {0, 0},
+
+        price = 10,
     },
 
     .Item2 = {
@@ -112,5 +122,4 @@ ITEMS := [ItemType]Item {
     .Item4 = {
         name = "Item4",
     },
-
 }
