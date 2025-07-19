@@ -73,6 +73,9 @@ Bonus :: struct {
 
 ItemType :: enum {
     FakeJorb,
+    Item2,
+    Item3,
+    Item4,
 }
 
 ItemData :: struct {

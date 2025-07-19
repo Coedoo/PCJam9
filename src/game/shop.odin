@@ -13,30 +13,16 @@ AcquisitionType :: enum {
     AllReels
 }
 
-ShopItem :: struct {
+ShopSymbol :: struct {
     symbol: SymbolType,
     price: int,
     bought: bool,
     acquisitionType: AcquisitionType,
 }
 
-SHOP_ITEMS := []ShopItem{
-    // {
-    //     symbol = .Cherry,
-    //     price = 10,
-    // },
-    // {
-    //     symbol = .Burger,
-    //     price = 10,
-    // },
-    // {
-    //     symbol = .Coffee,
-    //     price = 10,
-    // },
-    // {
-    //     symbol = .Lemon,
-    //     price = 10,
-    // },
+
+
+SHOP_SYMBOLS := []ShopSymbol{ 
 
     {
         symbol = .SpecialCherry,
@@ -60,13 +46,13 @@ SHOP_ITEMS := []ShopItem{
 }
 
 Shop :: struct {
-    items: [SHOP_ITEMS_COUNT]ShopItem,
+    items: [SHOP_ITEMS_COUNT]ShopSymbol,
 }
 
 InitShop :: proc(shop: ^Shop) {
     for &item in shop.items {
-        idx := rand.int_max(len(SHOP_ITEMS))
-        item = SHOP_ITEMS[idx]
+        idx := rand.int_max(len(SHOP_SYMBOLS))
+        item = SHOP_SYMBOLS[idx]
     }
 }
 

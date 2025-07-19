@@ -11,7 +11,12 @@ Gameplay:
 
   ✔ Special symbols base @done (25-07-15 10:56)
    ✔ REEL INFO @done (25-07-15 19:43)
-   ☐ Disable UI
+
+ ☐ MENU
+ ☐ Make final UI Layout
+ ☐ Disable UI
+
+ ☐ MAKE THE GAME FUN
 
   ☐ Special symbols:
     ✔ W and A @done (25-07-15 10:56)
@@ -20,7 +25,7 @@ Gameplay:
     ✔ Pipe @done (25-07-18 20:29)
 
   ☐ Items:
-    ☐ Jorb - gives one more spin
+    ✔ Jorb - gives one more spin @done (25-07-18 22:38)
     ☐ A gift from your girlfriend - every X spins add an Homemade explosive to random reel
     ☐ Legally distinct flying squirell - gives one more item to buy in shop
 
@@ -44,6 +49,7 @@ Gameplay:
     ☐ Add all items
     ☐ Selecting reel to put symbol into
     ☐ Multiple symbols in one item
+    ☐ Weighten shop buying
 
   ☐ Points animation:
     ✔ numbers over basic symbols @done (25-07-15 10:57)

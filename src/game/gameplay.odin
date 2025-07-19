@@ -349,34 +349,61 @@ GameplayRender :: proc() {
 
     // dm.DrawGrid()
 
-    for itemD, i in gameState.itemsData {
-        if itemD.isBought {
-            itemT := cast(ItemType) i
-            item := ITEMS[itemT]
-            sprite := dm.GetSprite(gameState.itemsAtlas, item.tilesetPos)
-            pos := v2{4, f32(i)}
-            dm.DrawSprite(sprite, pos)
+    if dm.UIContainer("Items", .TopRight, {-200, 100}) {
+        for itemD, itemType in gameState.itemsData {
+            if itemD.isBought {
+                item := ITEMS[itemType]
 
-            mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
-            bounds := dm.CreateBounds(pos, 1)
-            if dm.IsInBounds(bounds, mousePos) {
-                dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {0, 0})
-                if dm.Panel("Tooltip") {
-                    dm.UILabel(item.name)
-                    dm.UISpacer(10)
-                    dm.UILabel(item.desc)
+                id := fmt.aprint(itemType, allocator = dm.uiCtx.transientAllocator)
+                node := dm.AddNode(id, { .BackgroundTexture, .Clickable, .AnchoredPosition})
+
+                node.texture = gameState.itemsAtlas.texture
+                node.textureSource = dm.GetSpriteRect(gameState.itemsAtlas, item.tilesetPos)
+
+                node.origin = {0.5, 0.5}
+                node.anchoredPosPercent = {0, 0}
+                node.anchoredPosOffset = {0, f32(itemType) * 32}
+
+                node.preferredSize[.X] = {.Fixed, f32(node.textureSource.width), 1}
+                node.preferredSize[.Y] = {.Fixed, f32(node.textureSource.height), 1}
+
+                inter := dm.GetNodeInteraction(node)
+
+                if inter.hovered {
+                    dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {1, 0})
+                    if dm.Panel("Tooltip") {
+                        dm.UILabel(item.name)
+                        dm.UISpacer(10)
+                        dm.UILabel(item.desc)
+                    }
                 }
             }
         }
     }
 
-    dm.DrawText(fmt.tprint("Goal:", ROUNDS[gameState.roundIdx].goal), {-3, 4.6}, fontSize = 0.4)
-    dm.DrawText(fmt.tprint("Current Points:", gameState.allPoints), {-3, 4.0}, fontSize = 0.4)
-    dm.DrawTextCentered(fmt.tprint("Board Points:", gameState.evalResult.pointsSum), {0, -3}, fontSize = 0.4)
-    dm.DrawText(fmt.tprint("Spins:", gameState.spins), {-6, 0.5}, fontSize = 0.4)
-    dm.DrawText(fmt.tprint("Reel respins:", gameState.rerolls), {-6, 0}, fontSize = 0.4)
-    dm.DrawText(fmt.tprint("Reel moves:", gameState.moves), {-6, -0.5}, fontSize = 0.4)
-    dm.DrawText(fmt.tprint("Money:", gameState.money), {-6, -1}, fontSize = 0.4)
+
+    style := dm.uiCtx.textStyle
+    style.fontSize = 35
+    dm.PushStyle(style)
+
+    if dm.UIContainer("Game Stats", .MiddleLeft, {20, 0}, layoutAxis = .Y ) {
+        dm.UILabel("Goal:", ROUNDS[gameState.roundIdx].goal)
+        dm.UILabel("Current:", gameState.allPoints)
+        
+        dm.UISpacer(20)
+
+        dm.UILabel("Spins:", gameState.spins)
+        dm.UILabel("Reel respins:", gameState.rerolls)
+        dm.UILabel("Reel moves:", gameState.moves)
+        dm.UILabel("Money:", gameState.money)
+
+    }
+
+    if dm.UIContainer("BoardPoints", .BotCenter, {0, -20}, layoutAxis = .Y ) {
+        dm.UILabel("Board Points:", gameState.evalResult.pointsSum)
+    }
+    dm.PopStyle()
+
 
     if gameState.showReelInfo {
         ShowReelInfo()

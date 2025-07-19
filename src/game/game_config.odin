@@ -93,5 +93,18 @@ ITEMS := [ItemType]Item {
         name = "Fake Jorb",
         desc = "Grants one more spin per round.\n\nThe real one spins.\nBut, as a certain company, \nwe don't have the tech for that",
         tilesetPos = {0, 0}
-    }
+    },
+
+    .Item2 = {
+        name = "Item2",
+    },
+
+    .Item3 = {
+        name = "Item3",
+    },
+
+    .Item4 = {
+        name = "Item4",
+    },
+
 }

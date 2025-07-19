@@ -105,7 +105,7 @@ PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset("jelly_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
 
 
-    dm.platform.SetWindowSize(1200, 900)
+    dm.platform.SetWindowSize(1400, 900)
 }
 
 @(export)

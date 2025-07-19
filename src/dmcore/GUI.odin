@@ -1103,7 +1103,7 @@ UISlider :: proc(text: string, value: ^f32, min, max: f32) -> (res: bool) {
 
         PushParent(slideArea)
 
-        handleId := fmt.aprintf("handle", text, allocator = uiCtx.transientAllocator)
+        handleId := fmt.aprint("handle", text, allocator = uiCtx.transientAllocator)
         handle := AddNode(handleId, {.DrawBackground, .Clickable, .AnchoredPosition})
         handle.origin = {0.5, 0.5}
         handle.anchoredPosPercent = {0, 0.5}
