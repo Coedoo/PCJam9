@@ -309,7 +309,38 @@ GetSymbolPosition :: proc(x, y: int) -> v2 {
 
 
 GameplayRender :: proc() {
+    // camSize := dm.GetCameraSize(dm.renderCtx.camera)
+
+    // tt := math.mod(dm.time.gameTime / 5, 1)
+    // // dm.DrawRectBlank({5, -4}, f32(tt) * 5, shader = dm.renderCtx.defaultShaders[.Rect])
+    // // dm.DrawRectBlank({5 + f32(tt) / 2 -0.1, -4}, 0.2, color = dm.BLACK, shader = dm.renderCtx.defaultShaders[.Rect])
+
+
+    // dm.BeginScreenSpace()
+
+    // dm.DrawRectBlank({20, 20}, 300 + f32(tt) * 200, shader = dm.renderCtx.defaultShaders[.Rect])
+
+    // dm.EndScreenSpace()
+
+    // for x := -camSize.x / 2; x <= camSize.x / 2; x += 1 {
+    //     for y := -camSize.y / 2; y <= camSize.y / 2; y += 1 {
+    //         c1 := dm.color{180, 216, 230, 255} / 255
+    //         c2 := dm.color{230, 230, 168, 255} / 255
+
+    //         // p := x / camSize.x + 0.5
+    //         t := x + y + f32(dm.time.gameTime)
+    //         p := math.sin(f32(dm.time.gameTime) * 4) * 0.5 + 0.5
+
+    //         // size := math.lerp(f32(0.5), 1, p)
+
+    //         dm.DrawRectBlank({x, y}, 0.5, color = math.lerp(c1, c2, p), rotation = f32(dm.time.gameTime))
+    //     }
+    // }
+
+
+
     if gameState.state != .Shop {
+        dm.DrawRectBlank({0, 0}, {7, 6}, color = {1, 1, 1, 0.05})
         for &reel, x in gameState.reels {
             startIdx := int(reel.position)
             offset := reel.position - f32(startIdx)
@@ -362,10 +393,6 @@ GameplayRender :: proc() {
                 }
             }
         }
-    }
-
-    if gameState.state == .Shop {
-        ShowShop(&gameState.shop)
     }
 
     panelTex := dm.GetTextureAsset("panel_right.png")
@@ -457,6 +484,10 @@ GameplayRender :: proc() {
     if gameState.showReelInfo {
         ShowReelInfo()
     }
+    else if gameState.state == .Shop {
+        ShowShop(&gameState.shop)
+    }
+
 
     dm.DrawGrid()
 }

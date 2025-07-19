@@ -19,11 +19,11 @@ Gameplay:
  ☐ Make final UI Layout:
    ☐ TURN OFF THE FUCKING ANIMATIONS IN GAME
    ☐ LEFT PANEL:
-     ☐ GOAL
-     ☐ CURRENT POINTS 
+     ✔ GOAL @done (25-07-19 18:19)
+     ✔ CURRENT POINTS @done (25-07-19 18:19)
      ☐ (Space, maybe bigger font, it's the most important)
      ☐ GOLD (Icon?)
-     ☐ CURENT SPINS, MOVES, RESPINS (Kinda important, maybe change place, Money here is kinda off)
+     ✔ CURENT SPINS, MOVES, RESPINS (Kinda important, maybe change place, Money here is kinda off) @done (25-07-19 18:19)
      ☐ Reel info (I don't have better place for that)
 
    ☐ REELS:
@@ -32,9 +32,9 @@ Gameplay:
      ☐ BOARD POINTS (I would love some animation when it's going up)
    ☐ REELS BUTTONS:
      ☐ STYLIZE THEM
-     ☐ Move to render function?
+     ☐ Move UI to render function?
    ☐ RIGHT PANEL
-     ☐ I think it might be the same as Left panel
+     ✔ I think it might be the same as Left panel @done (25-07-19 18:19)
    ☐ SPIN AND ACCEPT BUTTONS
      ☐ (BIGGER, visible, maybe some flashing anim)
      ☐ Red and blue?

@@ -923,12 +923,17 @@ EndPanel :: proc() {
 @(deferred_none=EndContainer)
 UIContainer :: proc(text: string, anchor: UIAnchor, 
     anchorOffset := v2{0, 0},
-    layoutAxis := LayoutAxis.X) -> bool
+    layoutAxis := LayoutAxis.X,
+    alignment: Maybe(Aligment) = nil) -> bool
 {
     container := AddNode(text, {})
     container.childrenAxis = layoutAxis
     container.preferredSize[.X] = {.Children, 0, 1}
     container.preferredSize[.Y] = {.Children, 0, 1}
+
+    if al, ok := alignment.?; ok {
+        container.childrenAligment = al
+    }
 
     container.flags += { .AnchoredPosition }
 
@@ -1041,7 +1046,7 @@ ImageButton :: proc(
 ImageButtonI :: proc(
         image: TexHandle, 
         text: Maybe(string) = nil, 
-        maybeSize: Maybe(iv2) = nil, 
+        size: Maybe(iv2) = nil, 
         texSource: Maybe(RectInt) = nil
     ) -> UINodeInteraction
 {
@@ -1056,7 +1061,7 @@ ImageButtonI :: proc(
 
     PushParent(node)
 
-    UIImage(image, maybeSize = maybeSize, source = texSource)
+    UIImage(image, size = size, source = texSource)
     if t, ok := text.?; ok {
         UILabel(text)
     }
@@ -1073,7 +1078,7 @@ UILabel :: proc(params: ..any, sep := " ") {
 
 UIImage :: proc(
         image: TexHandle, 
-        maybeSize: Maybe(iv2) = nil,
+        size: Maybe(iv2) = nil,
         source: Maybe(RectInt) = nil,
     ) -> ^UINode
 {
@@ -1083,10 +1088,10 @@ UIImage :: proc(
     node.texture = image
     node.textureSource = source.? or_else {}
 
-    size := maybeSize.? or_else GetTextureSize(image)
+    s := size.? or_else GetTextureSize(image)
 
-    node.preferredSize[.X] = {.Fixed, f32(size.x), 1}
-    node.preferredSize[.Y] = {.Fixed, f32(size.y), 1}
+    node.preferredSize[.X] = {.Fixed, f32(s.x), 1}
+    node.preferredSize[.Y] = {.Fixed, f32(s.y), 1}
 
     return node
 }

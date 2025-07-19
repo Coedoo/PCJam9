@@ -106,6 +106,7 @@ PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset("panel.png", dm.TextureAssetDescriptor{})
     dm.RegisterAsset("panel_top.png", dm.TextureAssetDescriptor{})
     dm.RegisterAsset("panel_right.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("panel_shop.png", dm.TextureAssetDescriptor{})
 
 
     dm.RegisterAsset("jelly_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
@@ -172,6 +173,10 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
 GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
 
+    if dm.GetKeyState(.Tilde) == .JustPressed {
+        dm.platform.debugState = true
+    }
+
     if dm.GetKeyState(.A) == .JustPressed {
         for &i in gameState.itemsData {
             i.isBought = true
@@ -197,7 +202,7 @@ GameUpdateDebug : dm.GameUpdateDebug : proc(state: rawptr) {
 GameRender : dm.GameRender : proc(state: rawptr) {
     gameState = cast(^GameState) state
 
-    dm.ClearColor({0.1, 0.1, 0.3, 1})
+    dm.ClearColor({40, 53, 106, 255} / 255)
 
     // dm.BeginScreenSpace()
     // tex := dm.GetTextureAsset("jelly_curious.png")

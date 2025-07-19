@@ -72,12 +72,14 @@ InitShop :: proc(shop: ^Shop) {
 
 ShowShop :: proc(shop: ^Shop) {
 
+    dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
+
     style := dm.uiCtx.textStyle
     style.font = cast(dm.FontHandle) dm.GetAsset("Kenney Mini Square.ttf")
     style.fontSize = 30
 
-    if dm.UIContainer("SHOOOP", .MiddleCenter) {
-        if dm.Panel("Shop") {
+    if dm.UIContainer("SHOOOP", .TopCenter, {0, 190}, layoutAxis = .Y, alignment = dm.Aligment{.Top, .Middle}) {
+        // if dm.Panel("Shop") {
 
             dm.NextNodeStyle(style)
             dm.UILabel("shop dot phase dash connect dot com")
@@ -96,7 +98,7 @@ ShowShop :: proc(shop: ^Shop) {
                     symbol := SYMBOLS[item.symbol]
                     rect := dm.GetSpriteRect(gameState.symbolsAtlas, symbol.tilesetPos)
 
-                    imageNode := dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
+                    imageNode := dm.UIImage(gameState.symbolsAtlas.texture, source = rect, size = 64)
                     dm.NextNodeStyle(style)
                     dm.UILabel("Price:", item.price)
                     if dm.UIButton("Buy") {
@@ -144,7 +146,7 @@ ShowShop :: proc(shop: ^Shop) {
                     dm.UILabel(item.name)
 
                     rect := dm.GetSpriteRect(gameState.itemsAtlas, item.tilesetPos)
-                    imageNode := dm.UIImage(gameState.itemsAtlas.texture, source = rect)
+                    imageNode := dm.UIImage(gameState.itemsAtlas.texture, source = rect, size = 64)
 
                     dm.UILabel("Price:", item.price)
 
@@ -166,6 +168,6 @@ ShowShop :: proc(shop: ^Shop) {
             if dm.UIButton("Exit") {
                 gameState.state = .Ready
             }
-        }
+        // }
     }
 }

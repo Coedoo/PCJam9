@@ -286,7 +286,10 @@ ItemTooltip :: proc(type: ItemType) {
 }
 
 ShowReelInfo :: proc() {
+    dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
+
     if dm.UIContainer("ReelsInfo", .MiddleCenter) {
+
         if dm.Panel("REELSINFO", aligment = dm.Aligment{.Middle, .Middle}) {
             dm.BeginLayout("reelslayout1", axis = .X)
 
@@ -300,17 +303,10 @@ ShowReelInfo :: proc() {
                     if c != 0 {
                         symbol := SYMBOLS[i]
 
-
-                        sprite := dm.GetSprite(gameState.symbolsAtlas, symbol.tilesetPos)
-
-                        rect := dm.RectInt{
-                            sprite.texturePos.x, sprite.texturePos.y, 
-                            sprite.textureSize.x, sprite.textureSize.y
-                        }
-
+                        rect := dm.GetSpriteRect(gameState.symbolsAtlas, symbol.tilesetPos)
                         dm.PushId(int(i))
                         dm.BeginLayout("reelslayout3", axis = .X)
-                        dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
+                        dm.UIImage(gameState.symbolsAtlas.texture, source = rect, size = 64)
                         dm.UILabel(fmt.tprintf("x%v", c))
                         dm.EndLayout()
                         dm.PopId()
