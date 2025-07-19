@@ -893,11 +893,17 @@ Panel :: proc(
     text: string, 
     aligment: Maybe(Aligment) = nil,
     size: Maybe(iv2) = nil,
+    texture: TexHandle = {},
 ) -> bool
 {
-    node := AddNode(text, {.DrawBackground}, uiCtx.panelStyle, uiCtx.panelLayout)
+    node := AddNode(text, { .DrawBackground }, uiCtx.panelStyle, uiCtx.panelLayout)
     if al, ok := aligment.?; ok {
         node.childrenAligment = al
+    }
+
+    if texture != {} {
+        node.flags += { .BackgroundTexture }
+        node.texture =  texture
     }
 
     if size, ok := size.?; ok {
