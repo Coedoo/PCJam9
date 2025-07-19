@@ -87,6 +87,7 @@ NextStep :: proc(seq: ^Cutscene) {
 
     if seq.currentIdx >= len(seq.steps) {
         gameState.stage = .Gameplay
+        dm.renderCtx.camera.orthoSize = 5
     }
 }
 
@@ -183,8 +184,7 @@ UpdateCutscene :: proc(seq: ^Cutscene) {
 
 
     if(dm.GetKeyState(.Num2) == .JustPressed) {
-        seq.currentIdx = max(seq.currentIdx + 1, 0)
-        seq.stepTime = 0
+        NextStep(seq)
     }
 }
 
