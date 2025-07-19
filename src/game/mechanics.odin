@@ -103,7 +103,7 @@ GetSymbolPosition :: proc(x, y: int) -> v2 {
 
     posOffset := -v2{REELS_COUNT - 1, ROWS_COUNT - 1} / 2
     posOffset -= v2{0.35, 0}
-    posOffset += v2{f32(x), f32(y)} * v2{0.165, 0.14} // spacing
+    posOffset += v2{f32(x), f32(y)} * v2{0.4, 0.14} // spacing
 
     return {f32(x), f32(y)} + posOffset
 }
@@ -268,6 +268,27 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
     }
 
     return res
+}
+
+SymbolTooltip :: proc(type: SymbolType) {
+    symbol := SYMBOLS[type]
+
+    dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {0, 0})
+    if dm.Panel("Tooltip") {
+        dm.UILabel(type)
+        dm.UILabel("Base points:", symbol.basePoints)
+    }
+}
+
+ItemTooltip :: proc(type: ItemType) {
+    item := ITEMS[type]
+
+    dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {1, 0})
+    if dm.Panel("Tooltip") {
+        dm.UILabel(item.name)
+        dm.UISpacer(10)
+        dm.UILabel(item.desc)
+    }
 }
 
 ShowReelInfo :: proc() {

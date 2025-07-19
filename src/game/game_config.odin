@@ -7,7 +7,7 @@ import dm "../dmcore"
 
 BASIC_TILESET :: "symbols.png"
 
-START_MONEY :: 1000
+START_MONEY :: 10
 
 REELS_COUNT :: 5
 ROWS_COUNT :: 5
@@ -20,6 +20,8 @@ TIME_RAND_RANGE  :: v2{1, 1.2}
 
 REEL_TIME_OFFSET :: 0.5
 
+REEL_MOVE_TIME :: 0.3
+
 BONUS_LEN :: max(REELS_COUNT, ROWS_COUNT)
 
 //
@@ -27,8 +29,12 @@ SPINS_PER_ROUND :: 4
 REROLLS_PER_SPIN :: 2
 MOVES_PER_SPIN :: 5
 
-SKIP_CUTSCENES :: true
+//
+BASE_MONEY_PER_ROUND :: 10
+INTEREST_STEP :: 5
 
+
+SKIP_CUTSCENES :: true
 
 SYMBOLS := [SymbolType]Symbol {
     .None = {},

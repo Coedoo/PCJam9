@@ -104,6 +104,9 @@ PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset("jelly_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
     dm.RegisterAsset("jelly_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
 
+    dm.RegisterAsset("Kenney Future Narrow.ttf", dm.FontAssetDescriptor{.SDF, 50})
+    dm.RegisterAsset("Kenney Future.ttf",        dm.FontAssetDescriptor{.SDF, 50})
+    dm.RegisterAsset("Kenney Mini Square.ttf",   dm.FontAssetDescriptor{.SDF, 50})
 
     dm.platform.SetWindowSize(1400, 900)
 }

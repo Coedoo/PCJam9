@@ -56,7 +56,7 @@ ReelMove :: proc(reel: ^Reel, direction: f32) {
     gameState.state = .Spinning
 
     reel.spinState = .Moving
-    reel.spinTimer = 0.5
+    reel.spinTimer = REEL_MOVE_TIME
     reel.moveStartPos = reel.position
     reel.moveTargetPos = reel.position + direction
 
@@ -71,18 +71,18 @@ StartScoreAnim :: proc() {
 }
 
 GameplayUpdate :: proc() {
-
-    // if dm.GetKeyState(.Q) == .JustPressed {
-    //     InitShop(&gameState.shop)
-    //     gameState.showShop = true
-    // }
-
-    // if gameState.showShop {
-    //     ShowShop(&gameState.shop)
-    // }
-
     if gameState.state == .Ready {
         if gameState.allPoints >= ROUNDS[gameState.roundIdx].goal {
+
+            // Count money
+            base := BASE_MONEY_PER_ROUND
+            interest := gameState.money / INTEREST_STEP
+            spins := gameState.spins
+
+            fmt.println(base, interest, spins)
+
+            gameState.money += base + interest + spins
+
             BeginNextRound()
         }
     }
@@ -90,7 +90,7 @@ GameplayUpdate :: proc() {
     // update reels
     for &reel, i in gameState.reels {
 
-        if gameState.state == .PlayerMove {
+        dm.uiCtx.disabled = gameState.state != .PlayerMove
             dm.PushId(i)
 
             pos := GetSymbolPosition(i, ROWS_COUNT - 1)
@@ -114,7 +114,7 @@ GameplayUpdate :: proc() {
             }
 
             dm.PopId()
-        }
+        dm.uiCtx.disabled = false
 
 
         if reel.spinState == .Stopped {
@@ -128,7 +128,7 @@ GameplayUpdate :: proc() {
 
         if reel.spinState == .Moving {
             reel.spinTimer -= dm.time.deltaTime
-            p := 1 - reel.spinTimer / 0.5
+            p := 1 - reel.spinTimer / REEL_MOVE_TIME
             reel.position = math.lerp(reel.moveStartPos, reel.moveTargetPos, p)
         }
 
@@ -174,9 +174,6 @@ GameplayUpdate :: proc() {
     if gameState.state == .PlayerMove {
         dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({4, -1})))
         if dm.UIButton("Ok") {
-            // gameState.allPoints += gameState.evalResult.pointsSum
-            // gameState.evalResult.pointsSum = 0
-
             StartScoreAnim()
         }
     }
@@ -238,10 +235,8 @@ GameplayUpdate :: proc() {
     }
 
 
-    dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({-4, -3})))
-    if dm.UIButton("Reel Info") {
-        gameState.showReelInfo = true
-    }
+    // dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({-4, -3})))
+
 
     /////////////
     // DEBUG
@@ -308,15 +303,10 @@ GameplayRender :: proc() {
                         }
                     }
 
-
                     mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
                     bounds := dm.CreateBounds(pos, 1)
                     if dm.IsInBounds(bounds, mousePos) {
-                        dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {0, 0})
-                        if dm.Panel("Tooltip") {
-                            dm.UILabel(reel.symbols[idx])
-                            dm.UILabel("Base points:", symbol.basePoints)
-                        }
+                        SymbolTooltip(reel.symbols[idx])
                     }
                 }
             }
@@ -350,9 +340,15 @@ GameplayRender :: proc() {
     // dm.DrawGrid()
 
     if dm.UIContainer("Items", .TopRight, {-200, 100}) {
+        x := 0
+        y := 0
+
         for itemD, itemType in gameState.itemsData {
             if itemD.isBought {
                 item := ITEMS[itemType]
+
+                size :: 64
+                spacing :: 1
 
                 id := fmt.aprint(itemType, allocator = dm.uiCtx.transientAllocator)
                 node := dm.AddNode(id, { .BackgroundTexture, .Clickable, .AnchoredPosition})
@@ -362,20 +358,21 @@ GameplayRender :: proc() {
 
                 node.origin = {0.5, 0.5}
                 node.anchoredPosPercent = {0, 0}
-                node.anchoredPosOffset = {0, f32(itemType) * 32}
+                node.anchoredPosOffset = {f32(x) * (size + spacing), f32(y) * (size + spacing)}
 
-                node.preferredSize[.X] = {.Fixed, f32(node.textureSource.width), 1}
-                node.preferredSize[.Y] = {.Fixed, f32(node.textureSource.height), 1}
+                node.preferredSize[.X] = {.Fixed, size, 1}
+                node.preferredSize[.Y] = {.Fixed, size, 1}
 
                 inter := dm.GetNodeInteraction(node)
 
                 if inter.hovered {
-                    dm.NextNodePosition(dm.ToV2(dm.input.mousePos), {1, 0})
-                    if dm.Panel("Tooltip") {
-                        dm.UILabel(item.name)
-                        dm.UISpacer(10)
-                        dm.UILabel(item.desc)
-                    }
+                    ItemTooltip(itemType)
+                }
+
+                x += 1
+                if x >= 3 {
+                    x = 0
+                    y += 1
                 }
             }
         }
@@ -384,9 +381,10 @@ GameplayRender :: proc() {
 
     style := dm.uiCtx.textStyle
     style.fontSize = 35
-    dm.PushStyle(style)
+    style.font = cast(dm.FontHandle) dm.GetAsset("Kenney Future Narrow.ttf")
 
     if dm.UIContainer("Game Stats", .MiddleLeft, {20, 0}, layoutAxis = .Y ) {
+        dm.PushStyle(style)
         dm.UILabel("Goal:", ROUNDS[gameState.roundIdx].goal)
         dm.UILabel("Current:", gameState.allPoints)
         
@@ -397,8 +395,14 @@ GameplayRender :: proc() {
         dm.UILabel("Reel moves:", gameState.moves)
         dm.UILabel("Money:", gameState.money)
 
+        dm.PopStyle()
+
+        if dm.UIButton("Reel Info") {
+            gameState.showReelInfo = true
+        }
     }
 
+    dm.PushStyle(style)
     if dm.UIContainer("BoardPoints", .BotCenter, {0, -20}, layoutAxis = .Y ) {
         dm.UILabel("Board Points:", gameState.evalResult.pointsSum)
     }

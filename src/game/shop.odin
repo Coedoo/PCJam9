@@ -57,9 +57,17 @@ InitShop :: proc(shop: ^Shop) {
 }
 
 ShowShop :: proc(shop: ^Shop) {
+
+    style := dm.uiCtx.textStyle
+    style.font = cast(dm.FontHandle) dm.GetAsset("Kenney Mini Square.ttf")
+    style.fontSize = 30
+
     if dm.UIContainer("SHOOOP", .MiddleCenter) {
         if dm.Panel("Shop") {
+
+            dm.NextNodeStyle(style)
             dm.UILabel("shop dot phase dash connect dot com")
+            
             dm.BeginLayout("shoplayout")
             for &item, i in shop.items {
                 if item.bought {
@@ -68,8 +76,8 @@ ShowShop :: proc(shop: ^Shop) {
 
                 dm.PushId(i)
                 if dm.Panel("Item") {
+                    dm.NextNodeStyle(style)
                     dm.UILabel(item.symbol)
-
 
                     symbol := SYMBOLS[item.symbol]
                     sprite := dm.GetSprite(gameState.symbolsAtlas, symbol.tilesetPos)
@@ -79,7 +87,8 @@ ShowShop :: proc(shop: ^Shop) {
                         sprite.textureSize.x, sprite.textureSize.y
                     }
 
-                    dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
+                    imageNode := dm.UIImage(gameState.symbolsAtlas.texture, source = rect)
+                    dm.NextNodeStyle(style)
                     dm.UILabel("Price:", item.price)
                     if dm.UIButton("Buy") {
                         if RemoveMoney(item.price) {
@@ -101,6 +110,11 @@ ShowShop :: proc(shop: ^Shop) {
 
                             }
                         }
+                    }
+
+                    inter := dm.GetNodeInteraction(imageNode)
+                    if inter.hovered {
+                        SymbolTooltip(item.symbol)
                     }
                 }
                 dm.PopId()

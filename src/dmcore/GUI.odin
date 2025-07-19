@@ -33,7 +33,7 @@ UIContext :: struct {
     // Layout
     popLayoutAfterUse: bool,
     layoutStack: [dynamic]Layout,
-    
+
     defaultLayout: Layout,
     panelLayout: Layout,
     textLayout: Layout,
@@ -50,6 +50,8 @@ UIContext :: struct {
     panelStyle: Style,
     textStyle: Style,
     buttonStyle: Style,
+
+    disabled: bool,
 }
 
 /////////
@@ -101,6 +103,8 @@ UINode :: struct {
 
     targetPos: v2,
     targetSize: v2,
+
+    disabled: bool,
 
     using style: Style,
     using layout: Layout,
@@ -159,6 +163,8 @@ Style :: struct {
     textColor: color,
     bgColor: color,
 
+    disabledBgColor: color,
+
     hotColor: color,
     activeColor: color,
 
@@ -167,7 +173,6 @@ Style :: struct {
     hotAnimTime: f32,
     hotAnimEase: ease.Ease,
     hotScale: f32,
-
 }
 
 Layout :: struct {
@@ -214,10 +219,12 @@ InitUI :: proc(uiCtx: ^UIContext) {
     // font := LoadDefaultFont(renderCtx)
     uiCtx.defaultStyle = {
         // font = font,
-        fontSize = 18,
+        fontSize = 24,
 
         textColor = {1, 1, 1, 1},
         bgColor = {1, 1, 1, 1},
+
+        disabledBgColor = {0.3, 0.3, 0.3, 1},
 
         hotColor = {0.4, 0.4, 0.4, 1},
         activeColor = {0.6, 0.6, 0.6, 1},
@@ -817,11 +824,13 @@ AddNode :: proc(text: string, flags: NodeFlags,
 
     node.timeSinceHot = clamp(node.timeSinceHot, 0, node.hotAnimTime)
 
+    node.disabled = uiCtx.disabled
+
     return node
 }
 
 GetNodeInteraction :: proc(node: ^UINode) -> (result: UINodeInteraction) {
-    if .Clickable in node.flags {
+    // if .Clickable in node.flags {
         targetRect := Rect{
             node.targetPos.x - node.targetSize.x * node.origin.x,
             node.targetPos.y - node.targetSize.y * node.origin.y,
@@ -843,7 +852,10 @@ GetNodeInteraction :: proc(node: ^UINode) -> (result: UINodeInteraction) {
                 lmb := GetMouseButton(.Left)
                 if lmb == .JustPressed {
                     result.cursorDown = true
-                    uiCtx.activeId = node.id
+
+                    if node.disabled == false {
+                        uiCtx.activeId = node.id
+                    }
                 }
                 if lmb == .JustReleased && uiCtx.activeId == node.id {
                     result.cursorReleased = true
@@ -871,7 +883,7 @@ GetNodeInteraction :: proc(node: ^UINode) -> (result: UINodeInteraction) {
             result.hovered = true
         }
     
-    }
+    // }
 
     return
 }
@@ -1190,6 +1202,10 @@ DrawNode :: proc(ctx: UIContext, renderCtx: ^RenderContext, node: ^UINode) {
         }
         else if node.id == ctx.hotId {
             color = node.activeColor
+        }
+
+        if node.disabled {
+            color = node.disabledBgColor
         }
 
         DrawRect(
