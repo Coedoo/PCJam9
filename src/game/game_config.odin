@@ -82,14 +82,14 @@ SYMBOLS := [SymbolType]Symbol {
 
     .A = {
         tilesetPos = {2, 1},
-        basePoints = 1,
+        basePoints = 15,
 
         subtypes = { .W },
     },
 
     .W = {
         tilesetPos = {3, 1},
-        basePoints = 1,
+        basePoints = 15,
 
         subtypes = { .A },
     },
@@ -115,20 +115,45 @@ ITEMS := [ItemType]Item {
 
     .PhaseCoffee = {
         name = "Phase Coffe",
-        desc = "Gives bonus points for each coffee symbol",
+        desc = "Gives bonus points for coffee symbols\nAvailble now at... you know the drill",
         tilesetPos = {1, 0},
 
         affectedSymbol = .Coffee,
         baseBonus = 10,
+
+        price = 10,
     },
 
-    .Item3 = {
-        name = "Item3",
+    .TwoCoinMachine = {
+        name = "Two Coin Machine",
         tilesetPos = {2, 0},
+        desc = "Gives bonus points for Cherry symbols\n\nJerry!",
+
+        affectedSymbol = .Coffee,
+        baseBonus = 10,
+
+        price = 10,
     },
 
-    .Item4 = {
-        name = "Item4",
+    .Luminary = {
+        name = "Luminary",
         tilesetPos = {3, 0},
+        desc = "Gives bonus points for Star symbols\n\nI love this song",
+
+        affectedSymbol = .Star,
+        baseBonus = 10,
+
+        price = 10,
+    },
+
+    .RingPop = {
+        name = "Ring Pop",
+        tilesetPos = {4, 0},
+        desc = "Gives bonus points for Ribbon symbols\n\nApparently it's a diamond ring but no one believes that",
+
+        affectedSymbol = .Ribbon,
+        baseBonus = 10,
+
+        price = 10,
     },
 }

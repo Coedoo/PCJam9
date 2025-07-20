@@ -74,8 +74,9 @@ ItemType :: enum {
     None,
     FakeJorb,
     PhaseCoffee,
-    Item3,
-    Item4,
+    TwoCoinMachine,
+    Luminary,
+    RingPop,
 }
 
 ItemData :: struct {

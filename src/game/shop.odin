@@ -24,22 +24,22 @@ ShopSymbol :: struct {
 SHOP_SYMBOLS := []ShopSymbol{ 
     {
         symbol = .SpecialCherry,
-        price = 15,
+        price = 5,
     },
 
     {
         symbol = .Pipe,
-        price = 15,
+        price = 5,
     },
 
     {
         symbol = .A,
-        price = 15,
+        price = 5,
     },
 
     {
         symbol = .W,
-        price = 15,
+        price = 5,
     },
 }
 
@@ -58,15 +58,31 @@ InitShop :: proc(shop: ^Shop) {
 
     shop.itemsCount = 2
     allItems: [len(ItemType)]ItemType
-    for i in 0..<len(allItems) {
+    for i in 1..<len(allItems) {
         allItems[i] = cast(ItemType) i
     }
 
     rand.shuffle(allItems[:])
+    fmt.println(allItems)
 
-    idx := 0
-    for i in 0..<shop.itemsCount {
+    addedCount := 0
+    for i in 0..<len(allItems) {
+        if allItems[i] == .None {
+            continue
+        }
+
+        if HasItem(allItems[i]) {
+            continue
+        }
+
+        fmt.println(allItems[i])
+
         shop.items[i] = allItems[i]
+        addedCount += 1
+
+        if addedCount >= shop.itemsCount {
+            break
+        }
     }
 }
 
@@ -141,6 +157,8 @@ ShowShop :: proc(shop: ^Shop) {
                 dm.PushId(i)
                 if dm.Panel("Itemmm") {
                     item := ITEMS[shop.items[i]]
+
+                    // fmt.println(shop.items[i])
 
                     dm.NextNodeStyle(style)
                     dm.UILabel(item.name)
