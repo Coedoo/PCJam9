@@ -15,6 +15,7 @@ REEL_SIZE :: 64
 
 MIN_BONUS_LEN :: 3
 BONUS_MULTIPLIERS := []int {0, 1, 1, 3, 5, 8}
+AWA_MULTIPLIERS := []int {0, 1, 1, 5, 5, 10}
 
 //
 

@@ -272,28 +272,30 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
                 i += 2
             }
 
-            len := endIdx - startIdx
+            len := endIdx - startIdx + 1
 
             if len > 0 {
             // fix bonus
                 copy(bonus.symbols[:], bonus.symbols[startIdx:startIdx + len])
                 bonus.startCell = bonus.startCell + dir * i32(startIdx)
-                bonus.endCell = bonus.startCell + dir * i32(len)
+                bonus.endCell = bonus.startCell + dir * i32(len - 1)
             }
 
             bonus.length = max(len, 0)
         }
     }
 
-    for i := res.bonus.len - 1; i >= 0; i -= 1 {
-        if res.bonus.data[i].length < MIN_BONUS_LEN {
-            sa.ordered_remove(&res.bonus, i)
-        }
-    }
-
     for b in sa.slice(&res.bonus) {
         fmt.println(b)
     }
+
+    for i := res.bonus.len - 1; i >= 0; i -= 1 {
+        if res.bonus.data[i].length < MIN_BONUS_LEN {
+            sa.ordered_remove(&res.bonus, i)
+            fmt.println("Removing bouns at", i)
+        }
+    }
+
 
     return res
 }

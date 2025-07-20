@@ -62,7 +62,7 @@ InitShop :: proc(shop: ^Shop) {
 
     shop.itemsCount = 2
     allItems: [len(ItemType)]ItemType
-    for i in 1..<len(allItems) {
+    for i in 0..<len(allItems) {
         allItems[i] = cast(ItemType) i
     }
 
@@ -79,9 +79,7 @@ InitShop :: proc(shop: ^Shop) {
             continue
         }
 
-        fmt.println(allItems[i])
-
-        shop.items[i] = allItems[i]
+        shop.items[addedCount] = allItems[i]
         addedCount += 1
 
         if addedCount >= shop.itemsCount {

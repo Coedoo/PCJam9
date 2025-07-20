@@ -211,7 +211,12 @@ GameplayUpdate :: proc() {
 
                     cell := bonus.startCell
                     for {
-                        multiplier := BONUS_MULTIPLIERS[bonus.length] + itemsMultiplier
+                        baseMultiplier := BONUS_MULTIPLIERS[bonus.length]
+                        if mainSymbol == .A {
+                            baseMultiplier = AWA_MULTIPLIERS[bonus.length]
+                        }
+
+                        multiplier := baseMultiplier + itemsMultiplier
                         gameState.evalResult.points[cell.x][cell.y] *= multiplier
 
                         if cell == bonus.endCell {
