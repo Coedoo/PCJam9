@@ -261,7 +261,7 @@ InitUI :: proc(uiCtx: ^UIContext) {
     uiCtx.buttonStyle.bgColor = {1, 0.1, 0.3, 1}
     uiCtx.buttonStyle.hotColor = {1, 0.3, 0.5, 1}
     uiCtx.buttonStyle.activeColor = {1, 0.5, 0.6, 1}
-    uiCtx.buttonStyle.hotScale = 1.1
+    // uiCtx.buttonStyle.hotScale = 1.1
     uiCtx.buttonStyle.padding = { 3, 3, 3, 3 }
 
     uiCtx.buttonLayout = uiCtx.defaultLayout

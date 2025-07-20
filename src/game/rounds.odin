@@ -17,26 +17,41 @@ ROUNDS := []Round {
     {},
 
     {
-        goal = 800,
+        goal = 80000,
         cutsceneIdx = 1,
     },
+    // {
+    //     goal = 1200,
+    //     cutsceneIdx = 2,
+    // },
+    // {
+    //     goal = 1400,
+    //     cutsceneIdx = 3,
+    // },
+    // Endless round
     {
-        goal = 1200
-    },
-    {
-        goal = 1600
+        goal = 0
     }
 }
 
+
 BeginNextRound :: proc() {
+    assert(len(ROUNDS) >= 2)
+
     if gameState.roundIdx < len(ROUNDS) - 1 {
         gameState.roundIdx += 1
     }
-    else {
-        ROUNDS[gameState.roundIdx].goal *= 2
+
+    if gameState.roundIdx == len(ROUNDS) - 1 {
+        gameState.endlessRoundNumber += 1
+
+        prevGoal := ROUNDS[len(ROUNDS) - 2].goal
+        ROUNDS[len(ROUNDS) - 1].goal = prevGoal * int(math.pow(2, f32(gameState.endlessRoundNumber)))
     }
 
-    if ROUNDS[gameState.roundIdx].cutsceneIdx != 0 && SKIP_CUTSCENES == false {
+    if ROUNDS[gameState.roundIdx].cutsceneIdx != 0 && 
+        SKIP_CUTSCENES == false
+    {
         gameState.stage = .Cutscene
         gameState.cutsceneIdx = ROUNDS[gameState.roundIdx].cutsceneIdx
     }

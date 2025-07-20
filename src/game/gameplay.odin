@@ -13,6 +13,11 @@ import sa "core:container/small_array"
 BeginGameplay :: proc() {
     gameState.money = START_MONEY
 
+    gameState.roundIdx = 0
+    gameState.endlessRoundNumber = 0
+    gameState.allPoints = 0
+    gameState.cutsceneIdx = 0
+
     gameState.stage = .Gameplay
     BeginNextRound()
 }
@@ -75,6 +80,7 @@ StartScoreAnim :: proc() {
     gameState.animTimer = 0
     gameState.state = .ScoreAnim
     gameState.animStage = .Base
+    gameState.animItemIdx = 0
 }
 
 GameplayUpdate :: proc() {
@@ -93,71 +99,44 @@ GameplayUpdate :: proc() {
             BeginNextRound()
         }
         else if gameState.spins <= 0 {
-            gameState.stage = .Menu
+            gameState.state = .GameOver
         }
     }
 
-    // update reels
-    for &reel, i in gameState.reels {
 
-        dm.uiCtx.disabled = gameState.state != .PlayerMove
-            dm.PushId(i)
-
-            pos := GetSymbolPosition(i, ROWS_COUNT - 1)
-
-            dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint(pos + {0, 1})))
-            if dm.UIButton("Move Up") {
-                ReelMove(&reel, -1)
-            }
-
-
-            pos = GetSymbolPosition(i, 0)
-            dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint(pos - {0, 1})))
-            if dm.UIButton("Move Down") {
-                ReelMove(&reel, 1)
-            }
-
-            pos = GetSymbolPosition(i, 0)
-            dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint(pos - {0, 1.4})))
-            if dm.UIButton("Reroll") {
-                ReelSpin(&reel, 0, true)
-            }
-
-            dm.PopId()
-        dm.uiCtx.disabled = false
-
-
-        if reel.spinState == .Stopped {
-            continue
-        }
-
-        if reel.spinState == .Spinning {
-            reel.spinTimer -= dm.time.deltaTime
-            reel.position += reel.speed * dm.time.deltaTime
-        }
-
-        if reel.spinState == .Moving {
-            reel.spinTimer -= dm.time.deltaTime
-            p := 1 - reel.spinTimer / REEL_MOVE_TIME
-            reel.position = math.lerp(reel.moveStartPos, reel.moveTargetPos, p)
-        }
-
-        if reel.spinTimer <= 0 {
-            reel.spinState = .Stopped
-
-            // handle overflow
-            reel.position = f32(math.round(reel.position))
-            if int(reel.position) > reel.count {
-                reel.position -= f32(reel.count)
-            }
-            if int(reel.position) < 0 {
-                reel.position += f32(reel.count)
-            }
-        }
-    }
-
-    // check if reels stopped
     if gameState.state == .Spinning {
+        // update reels
+        for &reel, i in gameState.reels {
+            if reel.spinState == .Stopped {
+                continue
+            }
+
+            if reel.spinState == .Spinning {
+                reel.spinTimer -= dm.time.deltaTime
+                reel.position += reel.speed * dm.time.deltaTime
+            }
+
+            if reel.spinState == .Moving {
+                reel.spinTimer -= dm.time.deltaTime
+                p := 1 - reel.spinTimer / REEL_MOVE_TIME
+                reel.position = math.lerp(reel.moveStartPos, reel.moveTargetPos, p)
+            }
+
+            if reel.spinTimer <= 0 {
+                reel.spinState = .Stopped
+
+                // handle overflow
+                reel.position = f32(math.round(reel.position))
+                if int(reel.position) > reel.count {
+                    reel.position -= f32(reel.count)
+                }
+                if int(reel.position) < 0 {
+                    reel.position += f32(reel.count)
+                }
+            }
+        }
+
+        // check if reels stopped
         allStopped := true
         for &reel, i in gameState.reels {
             if reel.spinState != .Stopped {
@@ -172,27 +151,46 @@ GameplayUpdate :: proc() {
         }
     }
 
-    //
-    if gameState.state == .Ready {
-        dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({4, 0})))
-        if dm.UIButton("spin") {
-
-            SpinAll()
-        }
-    }
-
-    if gameState.state == .PlayerMove {
-        dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({4, -1})))
-        if dm.UIButton("Ok") {
-            StartScoreAnim()
-        }
-    }
-
     if gameState.state == .ScoreAnim {
         switch gameState.animStage {
         case .Base:
-            gameState.animStage = .Bonus
-            gameState.bonusAnimIdx = 0
+            gameState.animTimer -= dm.time.deltaTime
+
+            if gameState.animTimer <= 0 {
+                gameState.animTimer = 0.5
+
+                allChecked := true
+                for i in gameState.animItemIdx+1..<len(ITEMS) {
+                    itemType := cast(ItemType) i
+                    item := ITEMS[itemType]
+
+                    if HasItem(itemType) && item.affectedSymbol != .None && item.baseBonus != 0 {
+                        hasAffectedSymbol := false
+                        for &row, x in gameState.evalResult.points {
+                            for &point, y in row {
+                                if GetReelSymbol(x, y) == item.affectedSymbol {
+                                    hasAffectedSymbol = true
+
+                                    point += item.baseBonus
+                                }
+                            }
+                        }
+
+
+                        if hasAffectedSymbol {
+                            gameState.animItemIdx = i
+                            allChecked = false
+                            break
+                        }
+                    }
+                }
+
+                if allChecked {
+                    gameState.animStage = .Bonus
+                    gameState.bonusAnimIdx = 0
+                    gameState.animTimer = 0
+                }
+            }
 
         case .Bonus:
             gameState.animTimer += dm.time.deltaTime
@@ -204,9 +202,13 @@ GameplayUpdate :: proc() {
                     delta := bonus.endCell - bonus.startCell
                     dir := glsl.sign(delta)
 
+                    mainSymbol := bonus.symbols[0]
+                    itemsMultiplier := GetBonusMultiplierForSymbol(mainSymbol)
+
                     cell := bonus.startCell
                     for {
-                        gameState.evalResult.points[cell.x][cell.y] *= BONUS_MULTIPLIERS[bonus.length]
+                        multiplier := BONUS_MULTIPLIERS[bonus.length] + itemsMultiplier
+                        gameState.evalResult.points[cell.x][cell.y] *= multiplier
 
                         if cell == bonus.endCell {
                             break
@@ -243,10 +245,6 @@ GameplayUpdate :: proc() {
             gameState.animTimer += dm.time.deltaTime
         }
     }
-
-
-    // dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint({-4, -3})))
-
 
     /////////////
     // DEBUG
@@ -339,6 +337,35 @@ GameplayRender :: proc() {
 
 
 
+    // update reels
+    for &reel, i in gameState.reels {
+        dm.uiCtx.disabled = gameState.state != .PlayerMove
+            dm.PushId(i)
+
+            pos := GetSymbolPosition(i, ROWS_COUNT - 1)
+
+            dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint(pos + {0, 1})))
+            if dm.UIButton("Move Up") {
+                ReelMove(&reel, -1)
+            }
+
+
+            pos = GetSymbolPosition(i, 0)
+            dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint(pos - {0, 1})))
+            if dm.UIButton("Move Down") {
+                ReelMove(&reel, 1)
+            }
+
+            pos = GetSymbolPosition(i, 0)
+            dm.NextNodePosition(dm.ToV2(dm.WorldToScreenPoint(pos - {0, 1.8})))
+            if dm.UIButton("Reroll") {
+                ReelSpin(&reel, 0, true)
+            }
+
+            dm.PopId()
+        dm.uiCtx.disabled = false
+    }
+
     if gameState.state != .Shop {
         dm.DrawRectBlank({0, 0}, {7, 6}, color = {1, 1, 1, 0.05})
         for &reel, x in gameState.reels {
@@ -365,31 +392,49 @@ GameplayRender :: proc() {
                         }
                     }
 
-                    mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
-                    bounds := dm.CreateBounds(pos, 1)
-                    if dm.IsInBounds(bounds, mousePos) {
-                        SymbolTooltip(reel.symbols[idx])
+                    if gameState.state == .PlayerMove {
+                        mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
+                        bounds := dm.CreateBounds(pos, 1)
+                        if dm.IsInBounds(bounds, mousePos) {
+                            SymbolTooltip(reel.symbols[idx])
+                        }
                     }
                 }
             }
         }
 
         if gameState.state == .ScoreAnim {
-            if gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
-                bonus := sa.get(gameState.evalResult.bonus, gameState.bonusAnimIdx)
-                delta := bonus.endCell - bonus.startCell
-                dir := glsl.sign(delta)
+            if gameState.animStage == .Base {
+                item := ITEMS[cast(ItemType) gameState.animItemIdx]
 
-                cell := bonus.startCell
-                for {
-                    pos := GetSymbolPosition(int(cell.x), int(cell.y))
-                    dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 1, 1, 0.3})
-
-                    if cell == bonus.endCell {
-                        break
+                for &row, x in gameState.evalResult.points {
+                    for &point, y in row {
+                        symbol := GetReelSymbol(x, y)
+                        if symbol == item.affectedSymbol {
+                            pos := GetSymbolPosition(x, y)
+                            dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 0, 1, 0.3})
+                        }
                     }
+                }
+            }
 
-                    cell += dir
+            if gameState.animStage == .Bonus {
+                if gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
+                    bonus := sa.get(gameState.evalResult.bonus, gameState.bonusAnimIdx)
+                    delta := bonus.endCell - bonus.startCell
+                    dir := glsl.sign(delta)
+
+                    cell := bonus.startCell
+                    for {
+                        pos := GetSymbolPosition(int(cell.x), int(cell.y))
+                        dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 1, 1, 0.3})
+
+                        if cell == bonus.endCell {
+                            break
+                        }
+
+                        cell += dir
+                    }
                 }
             }
         }
@@ -481,11 +526,42 @@ GameplayRender :: proc() {
     dm.PopStyle()
 
 
+    if dm.UIContainer("SpinOk", .MiddleRight, {-250, 200}, layoutAxis = .Y) {
+        dm.uiCtx.disabled = gameState.state != .Ready
+        if dm.UIButton("spin") {
+            SpinAll()
+        }
+    
+
+        dm.uiCtx.disabled = gameState.state != .PlayerMove
+        if dm.UIButton("Ok") {
+            StartScoreAnim()
+        }
+
+        dm.uiCtx.disabled = false
+    }
+
     if gameState.showReelInfo {
         ShowReelInfo()
     }
     else if gameState.state == .Shop {
         ShowShop(&gameState.shop)
+    }
+
+    if gameState.state == .GameOver {
+
+        dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
+        if dm.UIContainer("ReelsInfo", .MiddleCenter, layoutAxis = .Y) {
+            title := gameState.endlessRoundNumber == 0 ? "Game Over" : "Run ended"
+            dm.UILabel("GAMEOVER")
+
+            dm.UILabel("Rounds:", gameState.roundIdx + gameState.endlessRoundNumber)
+            dm.UILabel("Points:", gameState.allPoints)
+
+            if dm.UIButton("OK") {
+                gameState.stage = .Menu
+            }
+        }
     }
 
 

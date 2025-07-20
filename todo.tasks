@@ -11,38 +11,44 @@ Gameplay:
 
   ✔ Special symbols base @done (25-07-15 10:56)
    ✔ REEL INFO @done (25-07-15 19:43)
- 
+
  ☐ MAKE THE GAME FUN
+ ☐ Game END STATS
+
+ ✔ MAKE SURE THAT CUTSCENES WORK CORRECTLY @done (25-07-20 10:07)
+
+ ☐ BUG: trim pipes at the end of the chain from bonuses
 
  ☐ WASM: COLORS DOESN'T LOOK CORRECT (OF COURSE)
 
  ☐ Make final UI Layout:
-   ☐ TURN OFF THE FUCKING ANIMATIONS IN GAME
-   ☐ LEFT PANEL:
+   ✔ TURN OFF THE FUCKING ANIMATIONS IN GAME @done (25-07-20 10:08)
+   ✔ LEFT PANEL: @done (25-07-20 10:08)
      ✔ GOAL @done (25-07-19 18:19)
      ✔ CURRENT POINTS @done (25-07-19 18:19)
-     ☐ (Space, maybe bigger font, it's the most important)
-     ☐ GOLD (Icon?)
+     ✔ (Space, maybe bigger font, it's the most important) @done (25-07-19 22:45)
+     ✔ GOLD (Icon?) @done (25-07-19 22:45)
      ✔ CURENT SPINS, MOVES, RESPINS (Kinda important, maybe change place, Money here is kinda off) @done (25-07-19 18:19)
-     ☐ Reel info (I don't have better place for that)
+     ✔ Reel info (I don't have better place for that) @done (25-07-20 10:09)
 
    ☐ REELS:
+     ☐ Make the buttons nicer somehow
 
-   ☐ TOP PANEL:
-     ☐ BOARD POINTS (I would love some animation when it's going up)
+   ✔ TOP PANEL: @done (25-07-19 22:45)
+     ✔ BOARD POINTS (I would love some animation when it's going up) @done (25-07-19 22:45)
    ☐ REELS BUTTONS:
      ☐ STYLIZE THEM
-     ☐ Move UI to render function?
-   ☐ RIGHT PANEL
+     ✔ Move UI to render function? @done (25-07-19 22:45)
+   ✔ RIGHT PANEL @done (25-07-19 22:45)
      ✔ I think it might be the same as Left panel @done (25-07-19 18:19)
    ☐ SPIN AND ACCEPT BUTTONS
      ☐ (BIGGER, visible, maybe some flashing anim)
      ☐ Red and blue?
 
-   ☐ SHOP:
-     ☐ Approximately the size of the Reels
-     ☐ Reels buttons still visible (?)
-     ☐ Just make it look nice, dunno
+   ✔ SHOP: @done (25-07-19 22:45)
+     ✔ Approximately the size of the Reels @done (25-07-19 22:45)
+     ✔ Reels buttons still visible (?) @done (25-07-19 22:45)
+     ✔ Just make it look nice, dunno @done (25-07-19 22:45)
 
 
  ☐ MENU
@@ -68,15 +74,16 @@ Gameplay:
     ✔ Target points @done (25-07-13 17:34)
     ✔ Finishing round and moving to the next one @done (25-07-13 17:34)
     ☐ Fail state
+      ☐ Make sure the state is properly reset
       ✔ Do I just let retry the round? @done (25-07-13 17:33)
-      ☐ Probably back to menu (make sure you can skip cutscenes)
+      ✔ Probably back to menu (make sure you can skip cutscenes) @done (25-07-19 22:46)
   
   ☐ Shop ?
     ✔ Implement money @done (25-07-13 21:13)
     ✔ Getting money after rounds (probably balatro style) @done (25-07-19 16:41)
     ✔ Add Shop items @done (25-07-13 21:13)
     ✔ Buying symbols @done (25-07-13 21:13)
-    ☐ UI
+    ✔ UI @done (25-07-19 22:46)
     ☐ Removing symbols (?)
     ✔ Buying items @done (25-07-19 16:41)
     ✔ Add all items @done (25-07-19 16:41)
@@ -84,16 +91,16 @@ Gameplay:
     ☐ Multiple symbols in one item
     ☐ Weighten shop buying
 
-  ☐ Points animation:
+  ✔ Points animation: @done (25-07-20 10:31)
     ✔ numbers over basic symbols @done (25-07-15 10:57)
     ✔ then highligh bonus + nubmers @done (25-07-15 10:57)
-    ☐ then special stuff
+    ✔ then special stuff @done (25-07-20 10:31)
  
- ☐ UI:
-   ☐ STYLING
-   ☐ Panels
+ ✔ UI: @done (25-07-20 10:32)
+   ✔ STYLING @done (25-07-20 10:32)
+   ✔ Panels @done (25-07-19 22:46)
    ✔ New font (kenney pixel) @done (25-07-19 16:41)
-   ☐ Things to show:
+   ✔ Things to show: @done (25-07-19 22:46)
      ✔ Goal @done (25-07-15 16:04)
      ✔ Current Points @done (25-07-15 16:04)
      ✔ Board Points @done (25-07-15 16:04)
@@ -101,11 +108,10 @@ Gameplay:
      ✔ Round / spins / moves @done (25-07-15 16:04)
      ✔ Money @done (25-07-19 16:41)
 
-  ☐ Game END STATS
 
   
 
 
-  ☐ Dev-test round
+  ✘ Dev-test round @cancelled (25-07-20 10:32)
 
   ✔ Popup UI over higlighted symbols @done (25-07-13 15:36)

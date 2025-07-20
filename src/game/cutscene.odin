@@ -278,37 +278,199 @@ Cutscenes := []Cutscene{
     {
         steps = {
             SequenceStepCamera {size = 1.75},
-            SequenceStepCharPos{.Jelly , {-3, -0.5}, {0, 1}},
-            // SequenceStepDialog{
-            //     text = "Lorem ipsum or something", 
-            //     characterPortrait = "jelly_curious.png"
-            // },
-            SequenceStepCharMovement {
-                duration = 2.5,
-                moves = {
-                    {.Jelly, {-3, -0.5}, {0, -0.5}},
-                }
-            },
-            SequenceStepCharPos{.Jelly , {0, -0.5}, {0, -1}},
             SequenceStepDialog{
-                text = "Hawk Tuah!", 
+                text = "Phew, finally got to the festival. Let's see what attractions are here", 
                 characterPortrait = "jelly_curious.png"
             },
             SequenceStepDialog{
-                text = ":D", 
+                text = "Air gun shooting, goldfish scooping...", 
                 characterPortrait = "jelly_happy.png"
             },
-            SequenceStepPause{1},
-            SequenceStepCharMovement {
-                duration = 2.5,
-                moves = {
-                    {.Jelly, {0, -0.5}, {-3, -0.5}},
-                }
+            SequenceStepDialog{
+                text = "MOMONGA", 
+                characterPortrait = "jelly_happy.png"
             },
-            SequenceStepPause{1},
+            SequenceStepDialog{
+                text = "All the items are bought with tickets won on the festival stalls. That's an unusal one. But I need the plushie.", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "A slot machine? That's another unusual one. But you can win the tickes... Well, let's try it", 
+                characterPortrait = "jelly_happy.png"
+            },
+        },
+    },
 
 
-            SequenceStepDialog{ text = "YAY"},
+    // Scond Scene
+    {
+        steps = {
+            SequenceStepCamera {size = 1.75},
+            SequenceStepDialog{
+                text = "Oh hi Ember", 
+                characterPortrait = "jelly_curious.png"
+            },
+            SequenceStepDialog{
+                text = "Hey Jelly, did you saw the ticket shop?", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Yeah, I'm currently farming the tickes for momonga plushie.", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Cool, I wanted to win some too, but I'm getting distracted with all the food stalls. They have a GREAT Takoyaki over there, you should check it out", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Thanks, I try it later. If you want some stuff from the shop I can share my tickets with you", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Really? But your plushie...", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Thank you so much!", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "ok, back to the mines", 
+                characterPortrait = "jelly_happy.png"
+            },
+        },
+    },
+
+
+    // third Scene
+    {
+        steps = {
+            SequenceStepCamera {size = 1.75},
+            SequenceStepDialog{
+                text = "Dizzy?! What happened?", 
+                characterPortrait = "jelly_curious.png"
+            },
+            SequenceStepDialog{
+                text = "Waah, I tripped and fell ony my face :<", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Did you get hurt?!", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "No... but, but... My tickets fell into the river ;_;", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "That must have beer quite a scene...", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Now I can't buy that one item on the stall I don't know which one because I don't watch dizzy but I'm sure to ask lovebugs for suggestions later :(", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "It's ok, you can have those", 
+                characterPortrait = "jelly_happy.png"
+            },
+            
+            SequenceStepDialog{
+                text = "REALLY? :>", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "REALLY? :>", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Yeah, I will just get more, it's not that hard", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "THANK YOU \\o/ I will repay you somehows", 
+                characterPortrait = "jelly_happy.png"
+            },
+        },
+    },
+
+
+    // 4th Scene
+    {
+        steps = {
+            SequenceStepCamera {size = 1.75},
+            SequenceStepDialog{
+                text = "IF I GET HIM I WILL...", 
+                characterPortrait = "jelly_curious.png"
+            },
+            SequenceStepDialog{
+                text = "Lumi? You look like you had an argument with your viewers again", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "I had, but it's not that. Someone stole my tickets!", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "What? Aren't you a thief here?", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Yes, but that's not the point!", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Did you see the thief?", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Yeah, he was wearing an armor and had star shaped helmet. And he was yelling something in an language I don't understand. Probably swears", 
+                characterPortrait = "jelly_happy.png"
+            },
+            
+            SequenceStepDialog{
+                text = "Whad da hell..?", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Anyway, have these, you can give them back if you find the thief", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Thanks, but what about you?", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "I'm sure I have enough time to get everything I want. I don't think I will meet any more people today", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Are you sure? We have more Invaders now", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Yes, but they are not in this game", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "OK, thanks wife", 
+                characterPortrait = "jelly_happy.png"
+            },
         },
     },
 }

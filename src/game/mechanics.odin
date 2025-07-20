@@ -70,10 +70,10 @@ Bonus :: struct {
     symbols: [BONUS_LEN]SymbolType
 }
 
-
 ItemType :: enum {
+    None,
     FakeJorb,
-    Item2,
+    PhaseCoffee,
     Item3,
     Item4,
 }
@@ -90,6 +90,30 @@ Item :: struct {
 
     price: int,
     weight: int,
+
+    affectedSymbol: SymbolType,
+    baseBonus: int,
+    multiplierBonus: int,
+}
+
+GetBaseBonusForSymbol :: proc(symbol: SymbolType) -> (base: int) {
+    for item, itemType in ITEMS {
+        if item.affectedSymbol == symbol && HasItem(itemType) {
+            base += item.baseBonus
+        }
+    }
+
+    return
+}
+
+GetBonusMultiplierForSymbol :: proc(symbol: SymbolType) -> (mult: int) {
+    for item, itemType in ITEMS {
+        if item.affectedSymbol == symbol && HasItem(itemType) {
+            mult += item.multiplierBonus
+        }
+    }
+
+    return
 }
 
 
@@ -287,7 +311,6 @@ ItemTooltip :: proc(type: ItemType) {
 
 ShowReelInfo :: proc() {
     dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
-
     if dm.UIContainer("ReelsInfo", .MiddleCenter) {
 
         if dm.Panel("REELSINFO", aligment = dm.Aligment{.Middle, .Middle}) {

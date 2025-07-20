@@ -24,7 +24,9 @@ GameplayState :: enum {
     Spinning,
     PlayerMove,
     ScoreAnim,
-    Shop
+    Shop,
+
+    GameOver,
 }
 
 ScoreAnimStage :: enum {
@@ -44,7 +46,6 @@ GameState :: struct {
     reels: [REELS_COUNT]Reel,
     evalResult: EvaluationResult,
 
-
     allPoints: int,
     money: int,
 
@@ -53,6 +54,8 @@ GameState :: struct {
     spins:    int,
     rerolls:  int,
     moves:    int,
+
+    endlessRoundNumber: int,
 
     // Items 
     itemsData: [ItemType]ItemData,
@@ -67,6 +70,8 @@ GameState :: struct {
     // anim
     animStage: ScoreAnimStage,
     animTimer: f32,
+
+    animItemIdx: i32,
 
     bonusAnimIdx: int,
 

@@ -103,6 +103,8 @@ STARTING_SYMBOLS := #partial #sparse [SymbolType]int {
 }
 
 ITEMS := [ItemType]Item {
+    .None = {},
+
     .FakeJorb = {
         name = "Fake Jorb",
         desc = "Grants one more spin per round.\n\nThe real one spins.\nBut, as a certain company, \nwe don't have the tech for that",
@@ -111,15 +113,22 @@ ITEMS := [ItemType]Item {
         price = 10,
     },
 
-    .Item2 = {
-        name = "Item2",
+    .PhaseCoffee = {
+        name = "Phase Coffe",
+        desc = "Gives bonus points for each coffee symbol",
+        tilesetPos = {1, 0},
+
+        affectedSymbol = .Coffee,
+        baseBonus = 10,
     },
 
     .Item3 = {
         name = "Item3",
+        tilesetPos = {2, 0},
     },
 
     .Item4 = {
         name = "Item4",
+        tilesetPos = {3, 0},
     },
 }
