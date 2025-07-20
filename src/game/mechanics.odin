@@ -274,11 +274,20 @@ Evaluate :: proc(reels: []Reel) -> EvaluationResult {
 
             len := endIdx - startIdx
 
+            if len > 0 {
             // fix bonus
-            copy(bonus.symbols[:], bonus.symbols[startIdx:startIdx + len])
-            bonus.startCell = bonus.startCell + dir * i32(startIdx)
-            bonus.endCell = bonus.startCell + dir * i32(len)
-            bonus.length = len
+                copy(bonus.symbols[:], bonus.symbols[startIdx:startIdx + len])
+                bonus.startCell = bonus.startCell + dir * i32(startIdx)
+                bonus.endCell = bonus.startCell + dir * i32(len)
+            }
+
+            bonus.length = max(len, 0)
+        }
+    }
+
+    for i := res.bonus.len - 1; i >= 0; i -= 1 {
+        if res.bonus.data[i].length < MIN_BONUS_LEN {
+            sa.ordered_remove(&res.bonus, i)
         }
     }
 
@@ -310,9 +319,15 @@ ItemTooltip :: proc(type: ItemType) {
     }
 }
 
-ShowReelInfo :: proc() {
+ShowReelInfo :: proc(selectReel: bool) -> int {
+    selected := -1
+
     dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
-    if dm.UIContainer("ReelsInfo", .MiddleCenter) {
+    if dm.UIContainer("ReelsInfo", .MiddleCenter, layoutAxis = .Y) {
+
+        if selectReel {
+            dm.UILabel("Choose Reel")
+        }
 
         if dm.Panel("REELSINFO", aligment = dm.Aligment{.Middle, .Middle}) {
             dm.BeginLayout("reelslayout1", axis = .X)
@@ -322,6 +337,12 @@ ShowReelInfo :: proc() {
                 
                 dm.PushId(rIdx)
                 dm.BeginLayout("reelslayout2", axis = .Y)
+                dm.UILabel("Reel", rIdx + 1)
+                if(selectReel) {
+                    if dm.UIButton("Select") {
+                        selected = rIdx
+                    }
+                }
 
                 for c, i in count {
                     if c != 0 {
@@ -345,9 +366,13 @@ ShowReelInfo :: proc() {
             dm.EndLayout()
 
             // dm.UISpacer(30)
-            if dm.UIButton("OK") {
-                gameState.showReelInfo = false
+            if selectReel == false {
+                if dm.UIButton("OK") {
+                    gameState.showReelInfo = false
+                }
             }
         }
     }
+
+    return selected
 }

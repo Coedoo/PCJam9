@@ -187,15 +187,19 @@ GameplayUpdate :: proc() {
 
                 if allChecked {
                     gameState.animStage = .Bonus
-                    gameState.bonusAnimIdx = 0
+                    gameState.bonusAnimIdx = -1
                     gameState.animTimer = 0
                 }
             }
 
         case .Bonus:
-            gameState.animTimer += dm.time.deltaTime
+            gameState.animTimer -= dm.time.deltaTime
 
-            if gameState.animTimer >= 0.5 {
+            if gameState.animTimer <= 0 {
+                gameState.animTimer = 0.5
+
+                gameState.bonusAnimIdx += 1
+
                 if gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
                     bonus := sa.get(gameState.evalResult.bonus, gameState.bonusAnimIdx)
 
@@ -220,16 +224,13 @@ GameplayUpdate :: proc() {
                 }
 
 
-                gameState.bonusAnimIdx += 1
-                gameState.animTimer = 0
-            }
+                if gameState.bonusAnimIdx >= gameState.evalResult.bonus.len {
+                    gameState.animStartPoints = gameState.allPoints
+                    gameState.animPointsCount = gameState.evalResult.pointsSum
 
-            if gameState.bonusAnimIdx >= gameState.evalResult.bonus.len {
-                gameState.animStartPoints = gameState.allPoints
-                gameState.animPointsCount = gameState.evalResult.pointsSum
-
-                gameState.animStage = .Points
-                gameState.animTimer = 0
+                    gameState.animStage = .Points
+                    gameState.animTimer = 0
+                }
             }
 
         case .Points:
@@ -392,7 +393,7 @@ GameplayRender :: proc() {
                         }
                     }
 
-                    if gameState.state == .PlayerMove {
+                    if (gameState.state == .PlayerMove || gameState.state == .Ready) && gameState.showReelInfo == false {
                         mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
                         bounds := dm.CreateBounds(pos, 1)
                         if dm.IsInBounds(bounds, mousePos) {
@@ -419,7 +420,7 @@ GameplayRender :: proc() {
             }
 
             if gameState.animStage == .Bonus {
-                if gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
+                if  gameState.bonusAnimIdx >= 0 && gameState.bonusAnimIdx < gameState.evalResult.bonus.len {
                     bonus := sa.get(gameState.evalResult.bonus, gameState.bonusAnimIdx)
                     delta := bonus.endCell - bonus.startCell
                     dir := glsl.sign(delta)
@@ -542,7 +543,7 @@ GameplayRender :: proc() {
     }
 
     if gameState.showReelInfo {
-        ShowReelInfo()
+        ShowReelInfo(false)
     }
     else if gameState.state == .Shop {
         ShowShop(&gameState.shop)

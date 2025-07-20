@@ -17,17 +17,27 @@ ROUNDS := []Round {
     {},
 
     {
-        goal = 80000,
+        goal = 800,
         cutsceneIdx = 1,
     },
-    // {
-    //     goal = 1200,
-    //     cutsceneIdx = 2,
-    // },
-    // {
-    //     goal = 1400,
-    //     cutsceneIdx = 3,
-    // },
+    {
+        goal = 1200,
+        cutsceneIdx = 2,
+    },
+    {
+        goal = 1400,
+        cutsceneIdx = 3,
+    },
+
+    {
+        goal = 1800,
+        cutsceneIdx = 3,
+    },
+
+    {
+        goal = 2000,
+        cutsceneIdx = 3,
+    },
     // Endless round
     {
         goal = 0

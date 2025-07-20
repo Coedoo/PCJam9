@@ -129,7 +129,7 @@ ITEMS := [ItemType]Item {
         tilesetPos = {2, 0},
         desc = "Gives bonus points for Cherry symbols\n\nJerry!",
 
-        affectedSymbol = .Coffee,
+        affectedSymbol = .Cherry,
         baseBonus = 10,
 
         price = 10,
