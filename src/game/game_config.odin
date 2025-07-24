@@ -42,7 +42,12 @@ MOVES_PER_SPIN :: 5
 BASE_MONEY_PER_ROUND :: 10
 INTEREST_STEP :: 5
 
-SKIP_CUTSCENES :: true
+when ODIN_DEBUG {
+SKIP_CUTSCENES :: false
+}
+else {
+SKIP_CUTSCENES :: false
+}
 
 
 SYMBOLS := [SymbolType]Symbol {
@@ -68,17 +73,19 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 10,
     },
 
-
-    .SpecialCherry = {
+    .Burger = {
         tilesetPos = {0, 1},
-        basePoints = 10,
+        basePoints = 50,
+        text = "I run out of ideas :<"
     },
 
     .Pipe = {
         tilesetPos = {1, 1},
         basePoints = 1,
 
-        subtypes = ~{}
+        subtypes = ~{},
+
+        text = "Counts as every other symbol"
     },
 
     .A = {
@@ -86,6 +93,8 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 15,
 
         subtypes = { .W },
+
+        text = "Grants big bonus when spells\na word in the alien language"
     },
 
     .W = {
@@ -93,6 +102,8 @@ SYMBOLS := [SymbolType]Symbol {
         basePoints = 15,
 
         subtypes = { .A },
+
+        text = "Grants big bonus when spells\na word in the alien language"
     },
 }
 
@@ -119,7 +130,7 @@ ITEMS := [ItemType]Item {
         desc = "Gives bonus points for coffee symbols\nAvailble now at... you know the drill",
         tilesetPos = {1, 0},
 
-        affectedSymbol = .Coffee,
+        affectedSymbols = { .Coffee },
         baseBonus = 10,
 
         price = 10,
@@ -130,7 +141,7 @@ ITEMS := [ItemType]Item {
         tilesetPos = {2, 0},
         desc = "Gives bonus points for Cherry symbols\n\nJerry!",
 
-        affectedSymbol = .Cherry,
+        affectedSymbols = { .Cherry },
         baseBonus = 10,
 
         price = 10,
@@ -141,7 +152,7 @@ ITEMS := [ItemType]Item {
         tilesetPos = {3, 0},
         desc = "Gives bonus points for Star symbols\n\nI love this song",
 
-        affectedSymbol = .Star,
+        affectedSymbols = { .Star },
         baseBonus = 10,
 
         price = 10,
@@ -149,11 +160,23 @@ ITEMS := [ItemType]Item {
 
     .RingPop = {
         name = "Ring Pop",
-        tilesetPos = {4, 0},
+        tilesetPos = {0, 1},
         desc = "Gives bonus points for Ribbon symbols\n\nApparently it's a diamond ring but no one believes that",
 
-        affectedSymbol = .Ribbon,
+        affectedSymbols = { .Ribbon },
         baseBonus = 10,
+
+        price = 10,
+    },
+
+    .AlienDictionary = {
+        name = "Alien Dictionary",
+        tilesetPos = {1, 1},
+        desc = "Gives additional multiplier for AWA bonuses\n\nIt's full of just two letters...",
+
+        affectedSymbols = { .A },
+        // baseBonus = 10,
+        multiplierBonus = 2,
 
         price = 10,
     },

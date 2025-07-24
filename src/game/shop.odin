@@ -23,7 +23,7 @@ ShopSymbol :: struct {
 
 SHOP_SYMBOLS := []ShopSymbol{ 
     {
-        symbol = .SpecialCherry,
+        symbol = .Burger,
         price = 5,
     },
 
@@ -60,7 +60,7 @@ InitShop :: proc(shop: ^Shop) {
         symbol = SHOP_SYMBOLS[idx]
     }
 
-    shop.itemsCount = 2
+    shop.itemsCount = 1
     allItems: [len(ItemType)]ItemType
     for i in 0..<len(allItems) {
         allItems[i] = cast(ItemType) i

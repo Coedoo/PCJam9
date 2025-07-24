@@ -26,6 +26,8 @@ GameplayState :: enum {
     ScoreAnim,
     Shop,
 
+    Result,
+
     GameOver,
 }
 
@@ -59,6 +61,10 @@ GameState :: struct {
 
     // Items 
     itemsData: [ItemType]ItemData,
+
+    //
+    roundMoney: int,
+    roundPoints: int,
 
     // Shop
     shop: Shop,
@@ -98,11 +104,17 @@ RemoveMoney :: proc(money: int) -> bool {
     return false
 }
 
+
+
 @export
 PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset(BASIC_TILESET, dm.TextureAssetDescriptor{})
     dm.RegisterAsset("items.png", dm.TextureAssetDescriptor{})
     dm.RegisterAsset("Jelly_anim.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("Ember_anim.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("Dizzy_anim.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("Lumi_anim.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("momonga.png", dm.TextureAssetDescriptor{})
     
     dm.RegisterAsset("enviro.png", dm.TextureAssetDescriptor{})
     
@@ -112,10 +124,32 @@ PreGameLoad : dm.PreGameLoad : proc(assets: ^dm.Assets) {
     dm.RegisterAsset("panel_top.png", dm.TextureAssetDescriptor{})
     dm.RegisterAsset("panel_right.png", dm.TextureAssetDescriptor{})
     dm.RegisterAsset("panel_shop.png", dm.TextureAssetDescriptor{})
+    dm.RegisterAsset("jellycover.png", dm.TextureAssetDescriptor{filter = .Bilinear})
 
+    dm.RegisterAsset("dizzy_cry.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("dizzy_cry2.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("dizzy_cry3.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("dizzy_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("dizzy_neutral.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("dizzy_smile.png", dm.TextureAssetDescriptor{filter = .Bilinear})
 
+    dm.RegisterAsset("jelly_cry.png", dm.TextureAssetDescriptor{filter = .Bilinear})
     dm.RegisterAsset("jelly_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
     dm.RegisterAsset("jelly_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("jelly_sad.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("jelly_smile.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("jelly_wow.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+
+    dm.RegisterAsset("ember_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("ember_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("ember_smile.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+
+    dm.RegisterAsset("lumi_angry.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("lumi_angry2.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("lumi_curious.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("lumi_happy.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+    dm.RegisterAsset("lumi_smile.png", dm.TextureAssetDescriptor{filter = .Bilinear})
+
 
     dm.RegisterAsset("Kenney Future Narrow.ttf", dm.FontAssetDescriptor{.SDF, 50})
     dm.RegisterAsset("Kenney Future.ttf",        dm.FontAssetDescriptor{.SDF, 50})
@@ -129,6 +163,7 @@ GameHotReloaded : dm.GameHotReloaded : proc(gameState: rawptr) {
     // gameState := cast(^GameState) gameState
 
     // gameState.levelAllocator = mem.arena_allocator(&gameState.levelArena)
+    InitCharacters()
 }
 
 @(export)
@@ -158,19 +193,20 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
     gameState.symbolsAtlas = dm.SpriteAtlas {
         texture = dm.GetTextureAsset(BASIC_TILESET),
         cellSize = 32,
+        // spacing = 1,
+        // padding = 1,
     }
 
     gameState.itemsAtlas = dm.SpriteAtlas {
         texture = dm.GetTextureAsset("items.png"),
         cellSize = 32,
-        spacing = 1,
-        padding = 1,
+        // spacing = 1,
+        // padding = 1,
     }
-
 
     InitCharacters()
 
-    BeginGameplay()
+    // BeginGameplay()
 }
 
 
@@ -178,15 +214,15 @@ GameLoad : dm.GameLoad : proc(platform: ^dm.Platform) {
 GameUpdate : dm.GameUpdate : proc(state: rawptr) {
     gameState = cast(^GameState) state
 
-    if dm.GetKeyState(.Tilde) == .JustPressed {
-        dm.platform.debugState = true
-    }
+    // if dm.GetKeyState(.Tilde) == .JustPressed {
+    //     dm.platform.debugState = true
+    // }
 
-    if dm.GetKeyState(.A) == .JustPressed {
-        for &i in gameState.itemsData {
-            i.isBought = true
-        }
-    }
+    // if dm.GetKeyState(.A) == .JustPressed {
+    //     for &i in gameState.itemsData {
+    //         i.isBought = true
+    //     }
+    // }
 
     switch gameState.stage {
     case .Menu:     MenuUpdate()

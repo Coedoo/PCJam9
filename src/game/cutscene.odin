@@ -22,6 +22,7 @@ SequenceStepDialog :: struct {
     text: string,
     characterPortrait: string,
     charTex: dm.TexHandle,
+    side: Side,
 }
 
 SequenceStepCharMovement :: struct {
@@ -48,11 +49,11 @@ SequenceStepPause :: struct {
 }
 
 Character :: enum {
+    Momonga,
     Jelly,
     Ember,
     Dizzy,
     Lumi,
-    Momonga,
 }
 
 CharacterState :: struct {
@@ -68,7 +69,13 @@ CharacterMove :: struct {
 Cutscene :: struct {
     currentIdx: int,
     stepTime: f32,
+    characters: bit_set[Character],
     steps: []SequenceStep,
+}
+
+Side :: enum {
+    Left,
+    Right,
 }
 
 CharacterData: [Character]CharacterState
@@ -79,6 +86,31 @@ InitCharacters :: proc() {
         dm.RectInt{0, 0, 32, 32},
         frames = 4,
     )
+
+    CharacterData[.Ember].sprite = dm.CreateSprite(
+        dm.GetTextureAsset("Ember_anim.png"),
+        dm.RectInt{0, 0, 32, 32},
+        frames = 4,
+    )
+
+    CharacterData[.Dizzy].sprite = dm.CreateSprite(
+        dm.GetTextureAsset("Dizzy_anim.png"),
+        dm.RectInt{0, 0, 32, 32},
+        frames = 4,
+    )
+
+    CharacterData[.Lumi].sprite = dm.CreateSprite(
+        dm.GetTextureAsset("Lumi_anim.png"),
+        dm.RectInt{0, 0, 32, 32},
+        frames = 4,
+    )
+
+    CharacterData[.Momonga].sprite = dm.CreateSprite(
+        dm.GetTextureAsset("momonga.png"),
+        dm.RectInt{0, 0, 33, 33},
+        frames = 0,
+    )
+    CharacterData[.Momonga].sprite.scale = 0.5
 }
 
 NextStep :: proc(seq: ^Cutscene) {
@@ -122,11 +154,13 @@ UpdateCutscene :: proc(seq: ^Cutscene) {
             char := &CharacterData[s.char]
             char.pos = s.pos
 
-            animRow, flipX := GetAnimRow(s.dir)
-            char.sprite.texturePos.y = animRow * char.sprite.textureSize.y
-            char.sprite.flipX = flipX
+            if s.char != .Momonga {
+                animRow, flipX := GetAnimRow(s.dir)
+                char.sprite.texturePos.y = animRow * char.sprite.textureSize.y
+                char.sprite.flipX = flipX
 
-            char.sprite.currentFrame = 0
+                char.sprite.currentFrame = 0
+            }
 
             NextStep(seq)
         }
@@ -147,6 +181,11 @@ UpdateCutscene :: proc(seq: ^Cutscene) {
             }
 
             if seq.stepTime >= s.duration {
+                for move in s.moves {
+                    char := &CharacterData[move.char]
+                    char.sprite.currentFrame = 0
+                }
+
                 NextStep(seq)
             }
         }
@@ -173,19 +212,20 @@ UpdateCutscene :: proc(seq: ^Cutscene) {
     }
 
     // Debug
-    if(dm.GetKeyState(.R) == .JustPressed) {
-        seq.currentIdx = 0
-    }
+    // if(dm.GetKeyState(.R) == .JustPressed) {
+    //     seq.currentIdx = 0
+    //     seq.stepTime = 0
+    // }
 
-    if(dm.GetKeyState(.Num1) == .JustPressed) {
-        seq.currentIdx = max(seq.currentIdx - 1, 0)
-        seq.stepTime = 0
-    }
+    // // if(dm.GetKeyState(.Num1) == .JustPressed) {
+    // //     seq.currentIdx = max(seq.currentIdx - 1, 0)
+    // //     seq.stepTime = 0
+    // // }
 
 
-    if(dm.GetKeyState(.Num2) == .JustPressed) {
-        NextStep(seq)
-    }
+    // if(dm.GetKeyState(.Num2) == .JustPressed) {
+    //     NextStep(seq)
+    // }
 }
 
 DrawCutscene :: proc(seq: ^Cutscene) {
@@ -196,11 +236,13 @@ DrawCutscene :: proc(seq: ^Cutscene) {
     step := &seq.steps[seq.currentIdx]
 
     enviroSprite := dm.CreateSprite(dm.GetTextureAsset("enviro.png"))
-    enviroSprite.scale = 160.0/32
+    enviroSprite.scale = f32(enviroSprite.textureSize.x)/32
     dm.DrawSprite(enviroSprite, v2{0, 0})
 
-    for c in CharacterData {
-        dm.DrawSprite(c.sprite, c.pos)
+    for c, type in CharacterData {
+        if type in seq.characters {
+            dm.DrawSprite(c.sprite, c.pos)
+        }
     }
 
     // fmt.println(CharacterData[.Jelly])
@@ -231,7 +273,9 @@ DrawCutscene :: proc(seq: ^Cutscene) {
             if s.characterPortrait != {} {
                 dm.BeginScreenSpace()
                 tex := dm.GetTextureAsset(s.characterPortrait)
-                dm.DrawRectPos(tex, {950, 700}, origin = v2{0.5, 1})
+
+                x :f32= s.side == .Right ? 1000 : 300
+                dm.DrawRectPos(tex, {x, 660}, origin = v2{0.5, 1})
 
                 dm.EndScreenSpace()
             }
@@ -269,6 +313,8 @@ DrawCutscene :: proc(seq: ^Cutscene) {
             // }
         }
     }
+
+    // dm.DrawGrid()
 }
 
 Cutscenes := []Cutscene{
@@ -276,26 +322,89 @@ Cutscenes := []Cutscene{
 
     // First Scene
     {
+        characters = { .Jelly, .Momonga },
         steps = {
-            SequenceStepCamera {size = 1.75},
-            SequenceStepDialog{
-                text = "Phew, finally got to the festival. Let's see what attractions are here", 
-                characterPortrait = "jelly_curious.png"
+            SequenceStepCamera {size = 2.2},
+            // SequenceStepCharPos{.Jelly, {-4}}
+            SequenceStepCharPos{.Momonga, {-1, -0.05}, {0, 1}},
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Jelly, {-4, -0.5}, {-2, -0.5}}
+                }
             },
             SequenceStepDialog{
+                text = "Phew, finally got to the festival.\nLet's see what attractions are here", 
+                characterPortrait = "jelly_curious.png"
+            },
+            SequenceStepCharMovement{
+                duration = 1,
+                moves = {
+                    {.Jelly, {-2, -0.5}, {-1, -0.5}}
+                }
+            },
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {-1, -0.5}, {-1, -1}}
+                }
+            },
+
+            SequenceStepDialog{
                 text = "Air gun shooting, goldfish scooping...", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_curious.png"
+            },
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {-1, -1}, {-1, -0.5}}
+                }
             },
             SequenceStepDialog{
                 text = "MOMONGA", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_happy.png",
+                side = .Right,
+            },
+
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {-1, -0.5}, {-1.5, -0.5}}
+                }
+            },
+            SequenceStepCharPos{.Jelly, {-1.5, -0.5}, {0, 1}},
+
+            SequenceStepDialog{
+                text = "\"All the items are bought with tickets won on the festival stalls\".\nThat's an unusal one. But I need the plushie.", 
+                characterPortrait = "jelly_curious.png",
+                side = .Right,
+            },
+
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {-1.5, -0.5}, {-1.5, -1}}
+                }
+            },
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Jelly, {-1.5, -1}, {1, -1}}
+                }
+            },
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {1, -1}, {1, -0.5}}
+                }
+            },
+
+            SequenceStepDialog{
+                text = "A slot machine?", 
+                characterPortrait = "jelly_wow.png"
             },
             SequenceStepDialog{
-                text = "All the items are bought with tickets won on the festival stalls. That's an unusal one. But I need the plushie.", 
-                characterPortrait = "jelly_happy.png"
-            },
-            SequenceStepDialog{
-                text = "A slot machine? That's another unusual one. But you can win the tickes... Well, let's try it", 
+                text = "That's another unusual one.\nBut you can win the tickes...\nWell, let's try it", 
                 characterPortrait = "jelly_happy.png"
             },
         },
@@ -304,42 +413,65 @@ Cutscenes := []Cutscene{
 
     // Scond Scene
     {
+        characters = { .Jelly, .Ember },
         steps = {
-            SequenceStepCamera {size = 1.75},
+            SequenceStepCamera {size = 2.2},
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {0, 1}},
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Ember, {4, -0.5}, {2, -0.5}}
+                }
+            },
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {1, 0}},
+
             SequenceStepDialog{
                 text = "Oh hi Ember", 
+                characterPortrait = "jelly_smile.png"
+            },
+            SequenceStepDialog{
+                text = "Hey Jelly! Have you seen the ticket shop?", 
+                characterPortrait = "ember_smile.png"
+            },
+            SequenceStepDialog{
+                text = "Yeah, I'm currently farming tickes for the Momonga plushie.", 
+                characterPortrait = "jelly_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Cool, I wanted to win some too, but I'm getting distracted\nwith all the food stalls. They have GREAT Takoyaki over there,\nyou should check it out!", 
+                characterPortrait = "ember_happy.png"
+            },
+            SequenceStepDialog{
+                text = "Thanks, I try it later. If you want some stuff from the shop\nI can share my tickets with you", 
                 characterPortrait = "jelly_curious.png"
-            },
-            SequenceStepDialog{
-                text = "Hey Jelly, did you saw the ticket shop?", 
-                characterPortrait = "jelly_happy.png"
-            },
-            SequenceStepDialog{
-                text = "Yeah, I'm currently farming the tickes for momonga plushie.", 
-                characterPortrait = "jelly_happy.png"
-            },
-            SequenceStepDialog{
-                text = "Cool, I wanted to win some too, but I'm getting distracted with all the food stalls. They have a GREAT Takoyaki over there, you should check it out", 
-                characterPortrait = "jelly_happy.png"
-            },
-            SequenceStepDialog{
-                text = "Thanks, I try it later. If you want some stuff from the shop I can share my tickets with you", 
-                characterPortrait = "jelly_happy.png"
             },
 
             SequenceStepDialog{
                 text = "Really? But your plushie...", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "ember_curious.png"
+            },
+
+            SequenceStepDialog{
+                text = "It's ok, this game is really fun, so I can just farm more", 
+                characterPortrait = "jelly_smile.png"
             },
 
             SequenceStepDialog{
                 text = "Thank you so much!", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "ember_happy.png"
             },
 
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Ember, {2, -0.5}, {4, -0.5}}
+                }
+            },
+
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {0, 1}},
             SequenceStepDialog{
-                text = "ok, back to the mines", 
-                characterPortrait = "jelly_happy.png"
+                text = "Ok, back to the mines", 
+                characterPortrait = "jelly_curious.png"
             },
         },
     },
@@ -347,120 +479,165 @@ Cutscenes := []Cutscene{
 
     // third Scene
     {
+        characters = { .Jelly, .Dizzy },
         steps = {
-            SequenceStepCamera {size = 1.75},
+            SequenceStepCamera {size = 2.2},
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {0, 1}},
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Dizzy, {4, -0.5}, {2, -0.5}}
+                }
+            },
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {1, 0}},
+
             SequenceStepDialog{
                 text = "Dizzy?! What happened?", 
-                characterPortrait = "jelly_curious.png"
+                characterPortrait = "jelly_sad.png"
             },
             SequenceStepDialog{
                 text = "Waah, I tripped and fell ony my face :<", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "dizzy_cry.png"
             },
             SequenceStepDialog{
                 text = "Did you get hurt?!", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_curious.png"
             },
+
+            SequenceStepCharPos{.Dizzy, {2, -0.5}, {0, 1}},
             SequenceStepDialog{
                 text = "No... but, but... My tickets fell into the river ;_;", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "dizzy_cry2.png"
             },
+            SequenceStepCharPos{.Dizzy, {2, -0.5}, {-1, 0}},
             SequenceStepDialog{
                 text = "That must have beer quite a scene...", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_sad.png"
             },
 
             SequenceStepDialog{
-                text = "Now I can't buy that one item on the stall I don't know which one because I don't watch dizzy but I'm sure to ask lovebugs for suggestions later :(", 
-                characterPortrait = "jelly_happy.png"
+                text = "Now I can't buy that special, summer edition coffee :(", 
+                characterPortrait = "dizzy_neutral.png"
+            },
+            
+            SequenceStepCharPos{.Dizzy, {2, -0.5}, {0, -1}},
+            SequenceStepDialog{
+                text = "Dizzy Dizzy Coffe Coffee Time!", 
+                characterPortrait = "dizzy_happy.png"
+            },
+            SequenceStepCharPos{.Dizzy, {2, -0.5}, {-1, 0}},
+
+            SequenceStepDialog{
+                text = ":<", 
+                characterPortrait = "dizzy_neutral.png"
             },
 
             SequenceStepDialog{
                 text = "It's ok, you can have those", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_smile.png"
             },
             
             SequenceStepDialog{
                 text = "REALLY? :>", 
-                characterPortrait = "jelly_happy.png"
-            },
-
-            SequenceStepDialog{
-                text = "REALLY? :>", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "dizzy_happy.png"
             },
 
             SequenceStepDialog{
                 text = "Yeah, I will just get more, it's not that hard", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_smile.png"
             },
 
             SequenceStepDialog{
-                text = "THANK YOU \\o/ I will repay you somehows", 
-                characterPortrait = "jelly_happy.png"
+                text = "THANK YOU \\o/ I will repay you somehow", 
+                characterPortrait = "dizzy_cry3.png"
             },
+
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Dizzy, {2, -0.5}, {4, -0.5}}
+                }
+            },
+
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {0, 1}},
+            SequenceStepPause{0.5},
         },
     },
 
 
     // 4th Scene
     {
+        characters = { .Jelly, .Lumi },
         steps = {
-            SequenceStepCamera {size = 1.75},
+            SequenceStepCamera {size = 2.2},
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {0, 1}},
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Lumi, {4, -0.5}, {2, -0.5}}
+                }
+            },
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {1, 0}},
+
             SequenceStepDialog{
                 text = "IF I GET HIM I WILL...", 
-                characterPortrait = "jelly_curious.png"
+                characterPortrait = "lumi_angry.png"
             },
             SequenceStepDialog{
                 text = "Lumi? You look like you had an argument with your viewers again", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "jelly_curious.png"
             },
             SequenceStepDialog{
-                text = "I had, but it's not that. Someone stole my tickets!", 
-                characterPortrait = "jelly_happy.png"
+                text = "I did! But it's not about that. Someone stole my tickets!", 
+                characterPortrait = "lumi_angry2.png"
             },
             SequenceStepDialog{
-                text = "What? Aren't you a thief here?", 
-                characterPortrait = "jelly_happy.png"
+                text = "What? Aren't you the thief here?", 
+                characterPortrait = "jelly_sad.png"
             },
             SequenceStepDialog{
                 text = "Yes, but that's not the point!", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "lumi_angry.png"
             },
 
             SequenceStepDialog{
-                text = "Did you see the thief?", 
-                characterPortrait = "jelly_happy.png"
+                text = "Did you see who stole it?", 
+                characterPortrait = "jelly_curious.png"
             },
 
             SequenceStepDialog{
-                text = "Yeah, he was wearing an armor and had star shaped helmet. And he was yelling something in an language I don't understand. Probably swears", 
-                characterPortrait = "jelly_happy.png"
+                text = "Yeah, he was wearing an armor and had star shaped helmet.\nAnd he was yelling something in an language I don't understand.", 
+                characterPortrait = "lumi_angry.png"
             },
             
             SequenceStepDialog{
-                text = "Whad da hell..?", 
-                characterPortrait = "jelly_happy.png"
+                text = "Probably swears", 
+                characterPortrait = "lumi_angry2.png"
             },
 
             SequenceStepDialog{
-                text = "Anyway, have these, you can give them back if you find the thief", 
-                characterPortrait = "jelly_happy.png"
+                text = "Whad da hell..?", 
+                characterPortrait = "jelly_sad.png"
+            },
+
+            SequenceStepDialog{
+                text = "Anyway, have these. You can give them back if you find the thief", 
+                characterPortrait = "jelly_smile.png"
             },
 
             SequenceStepDialog{
                 text = "Thanks, but what about you?", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "lumi_curious.png"
             },
 
             SequenceStepDialog{
-                text = "I'm sure I have enough time to get everything I want. I don't think I will meet any more people today", 
+                text = "I'm sure I have enough time to get\neverything I want.\nI don't think I will meet any more people today", 
                 characterPortrait = "jelly_happy.png"
             },
 
             SequenceStepDialog{
                 text = "Are you sure? We have more Invaders now", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "lumi_smile.png"
             },
 
             SequenceStepDialog{
@@ -469,8 +646,135 @@ Cutscenes := []Cutscene{
             },
             SequenceStepDialog{
                 text = "OK, thanks wife", 
-                characterPortrait = "jelly_happy.png"
+                characterPortrait = "lumi_happy.png"
             },
+
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Lumi, {2, -0.5}, {4, -0.5}}
+                }
+            },
+
+            SequenceStepCharPos{.Jelly, {1, -0.5}, {0, 1}},
+            SequenceStepPause{0.5},
         },
     },
+
+
+    // Final Scene
+    {
+        characters = ~{},
+        steps = {
+            SequenceStepCamera {size = 2.2},
+            SequenceStepCharPos{.Jelly, {1.2, -0.5}, {0, 1}},
+            SequenceStepCharPos{.Dizzy, {0, 10}, {0, 1}},
+            SequenceStepCharPos{.Ember, {0, 10}, {0, 1}},
+            SequenceStepCharPos{.Lumi,  {0, 10}, {0, 1}},
+            SequenceStepCharPos{.Momonga, {-100, -0.05}, {0, 1}},
+
+            SequenceStepDialog{
+                text = "That should be enough", 
+                characterPortrait = "jelly_curious.png"
+            },
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {1.2, -0.5}, {1.2, -1}}
+                }
+            },
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Jelly, {1.1, -1}, {-1, -1}}
+                }
+            },
+            SequenceStepCharMovement{
+                duration = 0.5,
+                moves = {
+                    {.Jelly, {-1, -1}, {-1, -0.5}}
+                }
+            },
+            SequenceStepCharPos{.Jelly, {-1, -0.5}, {0, 1}},
+            SequenceStepDialog{
+                text = "The Momonga plushie plea...", 
+                characterPortrait = "jelly_happy.png"
+            },
+
+            SequenceStepDialog{
+                text = "Wait, it's closed already?", 
+                characterPortrait = "jelly_sad.png"
+            },
+
+            SequenceStepDialog{
+                text = "I played for too long?!", 
+                characterPortrait = "jelly_cry.png"
+            },
+
+            SequenceStepDialog{
+                text = "Waaah!", 
+                characterPortrait = "jelly_cry.png"
+            },
+
+            SequenceStepCharMovement{
+                duration = 2,
+                moves = {
+                    {.Ember, {-4.2, -0.4}, {-2.3, -0.4}},
+                    {.Dizzy, {-4, -0.6}, {-2, -0.6}},
+                    {.Lumi,  {-4.3, -0.8}, {-2.2, -0.8}},
+                }
+            },
+
+            SequenceStepCharPos{.Jelly, {-1, -0.5}, {-1, 0}},
+
+            SequenceStepDialog{
+                text = "Huh?", 
+                characterPortrait = "jelly_curious.png",
+                side = .Right
+            },
+
+            SequenceStepDialog{
+                text = "Hey Jelly, we got you this", 
+                characterPortrait = "dizzy_smile.png",
+                side = .Right
+            },
+
+            SequenceStepCharPos{.Momonga, {-1.5, -0.8}, {0, 1}},
+            SequenceStepDialog{
+                text = "Momonga!?", 
+                characterPortrait = "jelly_happy.png",
+                side = .Right
+            },
+
+            SequenceStepDialog{
+                text = "Yeah, you gave us all those tickets\nand we were worried that you won't be able but buy the plushie",
+                characterPortrait = "lumi_smile.png",
+                side = .Right
+            },
+
+            SequenceStepDialog{
+                text = "So we got to work and got all the tickets ourselfs!",
+                characterPortrait = "ember_happy.png",
+                side = .Right
+            },
+
+            SequenceStepDialog{
+                text = "And it looks like it was a good idea!",
+                characterPortrait = "dizzy_smile.png",
+                side = .Right
+            },
+
+            SequenceStepDialog{
+                text = "THANK YOU GUYS!", 
+                characterPortrait = "jelly_cry.png",
+                side = .Right
+            },
+
+            SequenceStepDialog{
+                text = "The rounds are now played in endless mode", 
+                characterPortrait = "",
+                side = .Right
+            },
+        }
+    }
 }

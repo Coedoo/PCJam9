@@ -40,9 +40,9 @@ class FilesInterface {
                 req.open("GET", path);
                 // req.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
 
-                req.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
-                req.setRequestHeader("Expires", "Tue, 01 Jan 1980 1:00:00 GMT");
-                req.setRequestHeader("Pragma", "no-cache");
+                // req.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+                // req.setRequestHeader("Expires", "Tue, 01 Jan 1980 1:00:00 GMT");
+                // req.setRequestHeader("Pragma", "no-cache");
                 req.responseType = "arraybuffer";
 
                 let that = this;

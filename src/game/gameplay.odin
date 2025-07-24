@@ -96,7 +96,12 @@ GameplayUpdate :: proc() {
 
             gameState.money += base + interest + spins
 
-            BeginNextRound()
+
+            gameState.roundMoney = base + interest + spins
+            gameState.roundPoints = gameState.allPoints
+
+            gameState.state = .Result
+            // BeginNextRound()
         }
         else if gameState.spins <= 0 {
             gameState.state = .GameOver
@@ -164,11 +169,11 @@ GameplayUpdate :: proc() {
                     itemType := cast(ItemType) i
                     item := ITEMS[itemType]
 
-                    if HasItem(itemType) && item.affectedSymbol != .None && item.baseBonus != 0 {
+                    if HasItem(itemType) && item.affectedSymbols != {} && item.baseBonus != 0 {
                         hasAffectedSymbol := false
                         for &row, x in gameState.evalResult.points {
                             for &point, y in row {
-                                if GetReelSymbol(x, y) == item.affectedSymbol {
+                                if GetReelSymbol(x, y) in item.affectedSymbols {
                                     hasAffectedSymbol = true
 
                                     point += item.baseBonus
@@ -256,40 +261,40 @@ GameplayUpdate :: proc() {
     // DEBUG
     ////////////
 
-    if dm.GetKeyState(.Z) == .JustPressed {
-        gameState.evalResult = Evaluate(gameState.reels[:])
-        StartScoreAnim()
-    }
+    // if dm.GetKeyState(.Z) == .JustPressed {
+    //     gameState.evalResult = Evaluate(gameState.reels[:])
+    //     StartScoreAnim()
+    // }
 
-    if dm.GetKeyState(.S) == .JustPressed {
-        BeginNextRound()
-    }
+    // if dm.GetKeyState(.S) == .JustPressed {
+    //     BeginNextRound()
+    // }
 
-    mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
+    // mousePos := dm.ScreenToWorldSpace(dm.input.mousePos).xy
 
-    for &reel, x in gameState.reels {
-        for y in 0..< ROWS_COUNT + 1 {
-            pos := GetSymbolPosition(x, y)
-            bounds := dm.CreateBounds(pos, 1)
+    // for &reel, x in gameState.reels {
+    //     for y in 0..< ROWS_COUNT + 1 {
+    //         pos := GetSymbolPosition(x, y)
+    //         bounds := dm.CreateBounds(pos, 1)
 
-            if dm.IsInBounds(bounds, mousePos) {
-                scroll := dm.input.scroll
-                startIdx := int(reel.position)
-                idx := (startIdx + y) % reel.count
+    //         if dm.IsInBounds(bounds, mousePos) {
+    //             scroll := dm.input.scroll
+    //             startIdx := int(reel.position)
+    //             idx := (startIdx + y) % reel.count
 
-                if scroll != 0 {
+    //             if scroll != 0 {
                     
-                    i := cast(int) reel.symbols[idx]
-                    i = (i + scroll) % len(SymbolType)
-                    if i < 0 {
-                        i = len(SymbolType) - 1
-                    }
+    //                 i := cast(int) reel.symbols[idx]
+    //                 i = (i + scroll) % len(SymbolType)
+    //                 if i < 0 {
+    //                     i = len(SymbolType) - 1
+    //                 }
 
-                    reel.symbols[idx] = cast(SymbolType) i
-                }
-            }
-        }
-    }
+    //                 reel.symbols[idx] = cast(SymbolType) i
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 BoardSize :: proc() -> v2 {
@@ -416,7 +421,7 @@ GameplayRender :: proc() {
                 for &row, x in gameState.evalResult.points {
                     for &point, y in row {
                         symbol := GetReelSymbol(x, y)
-                        if symbol == item.affectedSymbol {
+                        if symbol in item.affectedSymbols {
                             pos := GetSymbolPosition(x, y)
                             dm.DrawRectBlank(pos, {0.8, 0.8}, color = {0, 0, 1, 0.3})
                         }
@@ -534,13 +539,18 @@ GameplayRender :: proc() {
 
     if dm.UIContainer("SpinOk", .MiddleRight, {-250, 200}, layoutAxis = .Y) {
         dm.uiCtx.disabled = gameState.state != .Ready
-        if dm.UIButton("spin") {
+        btnStyle := dm.uiCtx.buttonStyle
+        btnStyle.fontSize = 40
+        btnStyle.font = cast(dm.FontHandle) dm.GetAsset("Kenney Future Narrow.ttf")
+
+        dm.NextNodeStyle(btnStyle)
+        if dm.UIButton("SPIN") {
             SpinAll()
         }
-    
 
         dm.uiCtx.disabled = gameState.state != .PlayerMove
-        if dm.UIButton("Ok") {
+        dm.NextNodeStyle(btnStyle)
+        if dm.UIButton("OK") {
             StartScoreAnim()
         }
 
@@ -554,15 +564,32 @@ GameplayRender :: proc() {
         ShowShop(&gameState.shop)
     }
 
+    if gameState.state == .Result {
+        dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
+        if dm.UIContainer("Result", .MiddleCenter, layoutAxis = .Y) {
+            dm.PushStyle(style)
+            dm.UILabel("Round Finished")
+            dm.UILabel("Scored Points:", gameState.roundPoints)
+            dm.PopStyle()
+
+            if dm.UIButton("OK") {
+                BeginNextRound()
+            }
+        }
+    }
+
+
     if gameState.state == .GameOver {
 
         dm.DrawRect(dm.GetTextureAsset("panel_shop.png"), {0, 0}, size = v2{7, 6})
         if dm.UIContainer("ReelsInfo", .MiddleCenter, layoutAxis = .Y) {
             title := gameState.endlessRoundNumber == 0 ? "Game Over" : "Run ended"
-            dm.UILabel("GAMEOVER")
+            dm.PushStyle(style)
+            dm.UILabel(title)
 
             dm.UILabel("Rounds:", gameState.roundIdx + gameState.endlessRoundNumber)
             dm.UILabel("Points:", gameState.allPoints)
+            dm.PopStyle()
 
             if dm.UIButton("OK") {
                 gameState.stage = .Menu
@@ -571,5 +598,5 @@ GameplayRender :: proc() {
     }
 
 
-    dm.DrawGrid()
+    // dm.DrawGrid()
 }

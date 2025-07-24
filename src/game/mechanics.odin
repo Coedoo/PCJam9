@@ -18,7 +18,7 @@ SymbolType :: enum {
     Ribbon,
 
     // Special
-    SpecialCherry,
+    Burger,
     Pipe,
 
     A,
@@ -33,6 +33,8 @@ Symbol :: struct {
     subtypes: SymbolTypesSet,
 
     basePoints: int,
+
+    text: string,
 }
 
 ReelSpinState :: enum {
@@ -77,6 +79,7 @@ ItemType :: enum {
     TwoCoinMachine,
     Luminary,
     RingPop,
+    AlienDictionary,
 }
 
 ItemData :: struct {
@@ -92,14 +95,14 @@ Item :: struct {
     price: int,
     weight: int,
 
-    affectedSymbol: SymbolType,
+    affectedSymbols: SymbolTypesSet,
     baseBonus: int,
     multiplierBonus: int,
 }
 
 GetBaseBonusForSymbol :: proc(symbol: SymbolType) -> (base: int) {
     for item, itemType in ITEMS {
-        if item.affectedSymbol == symbol && HasItem(itemType) {
+        if symbol in item.affectedSymbols && HasItem(itemType) {
             base += item.baseBonus
         }
     }
@@ -109,7 +112,7 @@ GetBaseBonusForSymbol :: proc(symbol: SymbolType) -> (base: int) {
 
 GetBonusMultiplierForSymbol :: proc(symbol: SymbolType) -> (mult: int) {
     for item, itemType in ITEMS {
-        if item.affectedSymbol == symbol && HasItem(itemType) {
+        if symbol in item.affectedSymbols && HasItem(itemType) {
             mult += item.multiplierBonus
         }
     }
@@ -307,6 +310,11 @@ SymbolTooltip :: proc(type: SymbolType) {
     if dm.Panel("Tooltip") {
         dm.UILabel(type)
         dm.UILabel("Base points:", symbol.basePoints)
+
+        if symbol.text != {} {
+            dm.UISpacer(10)
+            dm.UILabel(symbol.text)
+        }
     }
 }
 

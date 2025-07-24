@@ -21,22 +21,33 @@ ROUNDS := []Round {
         cutsceneIdx = 1,
     },
     {
+        goal = 1000,
+    },
+    {
         goal = 1200,
         cutsceneIdx = 2,
     },
     {
         goal = 1400,
+    },
+
+    {
+        goal = 1600,
         cutsceneIdx = 3,
     },
 
     {
         goal = 1800,
-        cutsceneIdx = 3,
     },
 
     {
         goal = 2000,
-        cutsceneIdx = 3,
+        cutsceneIdx = 4,
+    },
+
+    {
+        goal = 2200,
+        cutsceneIdx = 5,
     },
     // Endless round
     {
@@ -44,6 +55,10 @@ ROUNDS := []Round {
     }
 }
 
+// RoundResult :: struct {
+//     poin
+//     money:int
+// }
 
 BeginNextRound :: proc() {
     assert(len(ROUNDS) >= 2)
@@ -56,7 +71,7 @@ BeginNextRound :: proc() {
         gameState.endlessRoundNumber += 1
 
         prevGoal := ROUNDS[len(ROUNDS) - 2].goal
-        ROUNDS[len(ROUNDS) - 1].goal = prevGoal * int(math.pow(2, f32(gameState.endlessRoundNumber)))
+        ROUNDS[len(ROUNDS) - 1].goal = prevGoal * int(math.pow(1.5, f32(gameState.endlessRoundNumber)))
     }
 
     if ROUNDS[gameState.roundIdx].cutsceneIdx != 0 && 

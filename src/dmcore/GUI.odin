@@ -246,7 +246,7 @@ InitUI :: proc(uiCtx: ^UIContext) {
     }
 
     uiCtx.panelStyle = uiCtx.defaultStyle
-    uiCtx.panelStyle.bgColor = {0.3, 0.3, 0.3, 0.5}
+    uiCtx.panelStyle.bgColor = {0.2, 0.2, 0.2, 0.9}
     uiCtx.panelStyle.padding = { 3, 3, 3, 3 }
 
     uiCtx.panelLayout = uiCtx.defaultLayout
@@ -258,7 +258,7 @@ InitUI :: proc(uiCtx: ^UIContext) {
     uiCtx.textLayout.preferredSize = {.X = {.Text, 0, 0.2}, .Y = {.Text, 0, 0.2}}
 
     uiCtx.buttonStyle = uiCtx.defaultStyle
-    uiCtx.buttonStyle.bgColor = {1, 0.1, 0.3, 1}
+    uiCtx.buttonStyle.bgColor = {0.05, 0.1, 0.9, 1}
     uiCtx.buttonStyle.hotColor = {1, 0.3, 0.5, 1}
     uiCtx.buttonStyle.activeColor = {1, 0.5, 0.6, 1}
     // uiCtx.buttonStyle.hotScale = 1.1

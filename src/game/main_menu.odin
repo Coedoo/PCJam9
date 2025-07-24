@@ -18,15 +18,15 @@ MenuStage :: enum {
 
 MenuUpdate :: proc() {
     style := dm.uiCtx.textStyle
-    style.fontSize = 130
-    style.textColor = {0, 0.5, 1, 1}
+    style.fontSize = 110
+    style.textColor = {0, 0, 0, 1}
 
     dm.NextNodeStyle(style)
     dm.NextNodePosition({60, 100}, origin = {0, 0.5})
-    dm.UILabel("TITTLE TBD")
+    dm.UILabel("Summer\nSlots Adventure")
 
     style = dm.uiCtx.panelStyle
-    style.bgColor = {0, 0, 0, 0.7}
+    style.bgColor = {0, 0, 0, 0.9}
 
     dm.NextNodeStyle(style)
     dm.NextNodePosition({70, 300}, origin = {0, 0})
@@ -34,7 +34,7 @@ MenuUpdate :: proc() {
 
         style = dm.uiCtx.buttonStyle
         style.fontSize = 50
-        style.bgColor     = {0, 0, 0, 0.3}
+        style.bgColor     = {0, 0, 0, 0.6}
         style.activeColor = {0, 0.05, 0.5, 0.7}
         style.hotColor    = {0, 0, 0.3, 0.7}
         dm.PushStyle(style)
@@ -43,12 +43,12 @@ MenuUpdate :: proc() {
         case .Main:
 
             if dm.UIButton("Play")     do BeginGameplay()
-            if dm.UIButton("Tutorial") do gameState.menuStage = .Tutorial
-            if dm.UIButton("Settings") do gameState.menuStage = .Settings
+            // if dm.UIButton("Tutorial") do gameState.menuStage = .Tutorial
+            // if dm.UIButton("Settings") do gameState.menuStage = .Settings
             if dm.UIButton("Credits")  do gameState.menuStage = .Credits
 
-            dm.UISpacer(20)
-            if dm.UIButton("Quit") {}
+            // dm.UISpacer(20)
+            // if dm.UIButton("Quit") {}
 
         case .LevelSelect:
             // for level in gameState.levels {
@@ -83,6 +83,10 @@ MenuUpdate :: proc() {
             if dm.UIButton("Back") do gameState.menuStage = .Main
 
         case .Credits:
+            dm.UILabel("Programming and Pixel art: Coedo")
+            dm.UILabel("Characters art: Peppy")
+            dm.UILabel("Menu art: Kairo")
+
             dm.UISpacer(20)
             if dm.UIButton("Back") do gameState.menuStage = .Main
         }
@@ -95,7 +99,7 @@ MenuRender :: proc() {
 
     mouseOffset := dm.ToV2(dm.input.mousePos) / dm.ToV2(dm.renderCtx.frameSize)
 
-    // dm.DrawRect(dm.GetTextureAsset("menu/JellyBackground.png"),   mouseOffset * 0.1, size = camSize)
+    dm.DrawRect(dm.GetTextureAsset("jellycover.png"), {0,0}, size = camSize, shader = dm.renderCtx.defaultShaders[.Rect])
     // dm.DrawRect(dm.GetTextureAsset("menu/BackgroundBullet1.png"), mouseOffset * 0.2, size = camSize)
     // dm.DrawRect(dm.GetTextureAsset("menu/Crossfire.png"),         mouseOffset * 0.3, size = camSize)
     // dm.DrawRect(dm.GetTextureAsset("menu/Tower1.png"),            mouseOffset * 0.4, size = camSize)
